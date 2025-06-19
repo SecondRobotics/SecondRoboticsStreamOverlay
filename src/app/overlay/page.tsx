@@ -1,0 +1,57 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { getOverlayState, useOverlayState, OverlayState } from "../lib/overlayState";
+import MatchView from "./components/MatchView";
+import StartingSoon from "./components/StartingSoon";
+
+export default function Overlay() {
+  const [currentTime, setCurrentTime] = useState("");
+  const [overlayState, setLocalOverlayState] = useState<OverlayState>({
+    mode: 'starting-soon',
+    matchTitle: 'FRC Stream Overlay',
+    matchTime: '00:00',
+    alliance1Score: 0,
+    alliance2Score: 0,
+    lastUpdated: Date.now(),
+  });
+
+  useEffect(() => {
+    // Load initial state
+    const loadInitialState = async () => {
+      const state = await getOverlayState();
+      setLocalOverlayState(state);
+    };
+    
+    loadInitialState();
+    
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+
+    const cleanup = useOverlayState((state) => {
+      setLocalOverlayState(state);
+    });
+
+    return () => {
+      clearInterval(timer);
+      if (cleanup) cleanup();
+    };
+  }, []);
+
+  const renderOverlayContent = () => {
+    switch (overlayState.mode) {
+      case 'match':
+        return <MatchView state={overlayState} currentTime={currentTime} />;
+      case 'starting-soon':
+      default:
+        return <StartingSoon state={overlayState} currentTime={currentTime} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-transparent text-white relative overflow-hidden">
+      {renderOverlayContent()}
+    </div>
+  );
+}
