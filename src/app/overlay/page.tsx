@@ -11,8 +11,11 @@ export default function Overlay() {
     mode: 'starting-soon',
     matchTitle: 'FRC Stream Overlay',
     matchTime: '00:00',
-    alliance1Score: 0,
-    alliance2Score: 0,
+    gameFileLocation: '',
+    redScore: 0,
+    blueScore: 0,
+    redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+    blueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
     lastUpdated: Date.now(),
   });
 

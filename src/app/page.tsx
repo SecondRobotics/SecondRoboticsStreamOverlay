@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { getOverlayState, setOverlayState, useOverlayState, OverlayState } from "./lib/overlayState";
+import FileViewer from "./components/FileViewer";
 
 export default function Dashboard() {
   const [overlayUrl, setOverlayUrl] = useState("");
@@ -10,10 +11,14 @@ export default function Dashboard() {
     mode: 'starting-soon',
     matchTitle: 'FRC Stream Overlay',
     matchTime: '00:00',
-    alliance1Score: 0,
-    alliance2Score: 0,
+    gameFileLocation: '',
+    redScore: 0,
+    blueScore: 0,
+    redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+    blueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
     lastUpdated: Date.now(),
   });
+  const [isEditing, setIsEditing] = useState<string | null>(null);
 
   useEffect(() => {
     // Load initial state
@@ -25,11 +30,14 @@ export default function Dashboard() {
     loadInitialState();
     
     const cleanup = useOverlayState((state) => {
-      setLocalOverlayState(state);
+      // Only update state if user isn't currently editing a field
+      if (!isEditing) {
+        setLocalOverlayState(state);
+      }
     });
     
     return cleanup;
-  }, []);
+  }, [isEditing]);
 
   const copyOverlayUrl = async () => {
     const url = `${window.location.origin}/overlay`;
@@ -38,12 +46,18 @@ export default function Dashboard() {
     alert("Overlay URL copied to clipboard!");
   };
 
-  const setOverlayMode = (mode: OverlayState['mode']) => {
-    setOverlayState({ mode });
+  const setOverlayMode = async (mode: OverlayState['mode']) => {
+    // Update local state immediately for instant UI feedback
+    setLocalOverlayState(prev => ({ ...prev, mode }));
+    // Then update server state
+    await setOverlayState({ mode });
   };
 
-  const updateOverlayData = (field: string, value: string | number) => {
-    setOverlayState({ [field]: value });
+  const updateOverlayData = async (field: string, value: string | number) => {
+    // Update local state immediately for instant UI feedback
+    setLocalOverlayState(prev => ({ ...prev, [field]: value }));
+    // Then update server state
+    await setOverlayState({ [field]: value });
   };
 
   return (
@@ -126,41 +140,56 @@ export default function Dashboard() {
                 </label>
                 <input
                   type="text"
-                  defaultValue={overlayState.matchTitle}
-                  onBlur={(e) => updateOverlayData('matchTitle', e.target.value)}
+                  value={overlayState.matchTitle}
+                  onChange={(e) => setLocalOverlayState(prev => ({ ...prev, matchTitle: e.target.value }))}
+                  onFocus={() => setIsEditing('matchTitle')}
+                  onBlur={(e) => {
+                    setIsEditing(null);
+                    updateOverlayData('matchTitle', e.target.value);
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Enter event name"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Alliance 1
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={overlayState.alliance1Score}
-                    onBlur={(e) => updateOverlayData('alliance1Score', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Alliance 2
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={overlayState.alliance2Score}
-                    onBlur={(e) => updateOverlayData('alliance2Score', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="0"
-                  />
-                </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Scores are automatically read from Score_R.txt and Score_B.txt files in the game file location.
               </div>
             </div>
           </div>
 
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Game File Settings
+            </h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Game File Location
+                </label>
+                <input
+                  type="text"
+                  value={overlayState.gameFileLocation}
+                  onChange={(e) => setLocalOverlayState(prev => ({ ...prev, gameFileLocation: e.target.value }))}
+                  onFocus={() => setIsEditing('gameFileLocation')}
+                  onBlur={(e) => {
+                    setIsEditing(null);
+                    updateOverlayData('gameFileLocation', e.target.value);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Enter game file path or URL"
+                />
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Path to your game data file (e.g., /path/to/game.json or https://example.com/game.json)
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* File Viewer Widget */}
+        <div className="mt-8">
+          <FileViewer key={overlayState.gameFileLocation} gameFileLocation={overlayState.gameFileLocation} />
         </div>
       </div>
     </div>

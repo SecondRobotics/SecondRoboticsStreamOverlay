@@ -1,5 +1,6 @@
 import { OverlayState } from "../../lib/overlayState";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface MatchViewProps {
   state: OverlayState;
@@ -8,8 +9,8 @@ interface MatchViewProps {
 
 export default function MatchView({ state, currentTime }: MatchViewProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [prevScores, setPrevScores] = useState({ alliance1: state.alliance1Score, alliance2: state.alliance2Score });
-  const [scoreChanged, setScoreChanged] = useState({ alliance1: false, alliance2: false });
+  const [prevScores, setPrevScores] = useState({ red: state.redScore, blue: state.blueScore });
+  const [scoreChanged, setScoreChanged] = useState({ red: false, blue: false });
 
   useEffect(() => {
     // Entrance animation
@@ -18,19 +19,25 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
 
   useEffect(() => {
     // Score change animation
-    if (prevScores.alliance1 !== state.alliance1Score) {
-      setScoreChanged(prev => ({ ...prev, alliance1: true }));
-      setTimeout(() => setScoreChanged(prev => ({ ...prev, alliance1: false })), 600);
+    if (prevScores.red !== state.redScore) {
+      setScoreChanged(prev => ({ ...prev, red: true }));
+      setTimeout(() => setScoreChanged(prev => ({ ...prev, red: false })), 600);
     }
-    if (prevScores.alliance2 !== state.alliance2Score) {
-      setScoreChanged(prev => ({ ...prev, alliance2: true }));
-      setTimeout(() => setScoreChanged(prev => ({ ...prev, alliance2: false })), 600);
+    if (prevScores.blue !== state.blueScore) {
+      setScoreChanged(prev => ({ ...prev, blue: true }));
+      setTimeout(() => setScoreChanged(prev => ({ ...prev, blue: false })), 600);
     }
-    setPrevScores({ alliance1: state.alliance1Score, alliance2: state.alliance2Score });
-  }, [state.alliance1Score, state.alliance2Score]);
+    setPrevScores({ red: state.redScore, blue: state.blueScore });
+  }, [state.redScore, state.blueScore, prevScores.red, prevScores.blue]);
 
   return (
     <>
+      <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 border border-white/20 animate-fade-in">
+        <div className="text-lg font-bold">
+          {state.matchTitle}
+        </div>
+      </div>
+
       <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 border border-white/20 animate-fade-in">
         <div className="text-sm font-mono">
           {currentTime}
@@ -48,24 +55,50 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
       }`}>
         <div className="bg-black/70 backdrop-blur-sm rounded-lg p-4 border border-white/20 shadow-2xl">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h2 className="text-xl font-bold animate-fade-in">{state.matchTitle}</h2>
+          <div className="flex items-center justify-center gap-6">
+            {/* Red Alliance OPR */}
+            <div className="text-xs text-red-100 opacity-90 space-y-1 text-right">
+              {state.redOPR.map((player, index) => (
+                <div key={index} className="flex items-center justify-end gap-2">
+                  <span className="truncate max-w-[100px]">{player.username}</span>
+                  <span className="font-mono bg-red-700/50 px-2 py-1 rounded">{player.score}</span>
+                </div>
+              ))}
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className={`bg-blue-600/80 rounded p-4 text-center ${
-              scoreChanged.alliance1 ? 'animate-score-change bg-blue-500' : ''
+            
+            {/* Red Score */}
+            <div className={`bg-red-600/80 rounded-lg p-6 text-center min-w-[150px] ${
+              scoreChanged.red ? 'animate-score-change bg-red-500' : ''
             }`}>
-              <div className="text-lg font-bold">Alliance 1</div>
-              <div className="text-3xl font-mono font-bold">{state.alliance1Score}</div>
+              <div className="text-5xl font-mono font-bold">{state.redScore}</div>
             </div>
-            <div className={`bg-red-600/80 rounded p-4 text-center ${
-              scoreChanged.alliance2 ? 'animate-score-change bg-red-500' : ''
+            
+            {/* Logo */}
+            <div className="relative w-20 h-20 mx-4">
+              <Image
+                src="/assets/src-light-logo.png"
+                alt="SRC Logo"
+                fill
+                style={{ objectFit: 'contain' }}
+                className="drop-shadow-lg"
+              />
+            </div>
+            
+            {/* Blue Score */}
+            <div className={`bg-blue-600/80 rounded-lg p-6 text-center min-w-[150px] ${
+              scoreChanged.blue ? 'animate-score-change bg-blue-500' : ''
             }`}>
-              <div className="text-lg font-bold">Alliance 2</div>
-              <div className="text-3xl font-mono font-bold">{state.alliance2Score}</div>
+              <div className="text-5xl font-mono font-bold">{state.blueScore}</div>
+            </div>
+            
+            {/* Blue Alliance OPR */}
+            <div className="text-xs text-blue-100 opacity-90 space-y-1 text-left">
+              {state.blueOPR.map((player, index) => (
+                <div key={index} className="flex items-center justify-start gap-2">
+                  <span className="font-mono bg-blue-700/50 px-2 py-1 rounded">{player.score}</span>
+                  <span className="truncate max-w-[100px]">{player.username}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
