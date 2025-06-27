@@ -1,5 +1,5 @@
 import { OverlayState } from "../../lib/overlayState";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 
 interface MatchViewProps {
@@ -11,6 +11,21 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [prevScores, setPrevScores] = useState({ red: state.redScore, blue: state.blueScore });
   const [scoreChanged, setScoreChanged] = useState({ red: false, blue: false });
+  const [animatingScores, setAnimatingScores] = useState({ red: state.redScore, blue: state.blueScore });
+  const [prevOPR, setPrevOPR] = useState({ red: state.redOPR, blue: state.blueOPR });
+  const [oprChanged, setOprChanged] = useState({ red: new Set<string>(), blue: new Set<string>() });
+  const [animatingOPR, setAnimatingOPR] = useState({ red: state.redOPR, blue: state.blueOPR });
+  // Memoize sorted OPR arrays to prevent unnecessary re-calculations
+  const sortedRedOPR = useMemo(() => 
+    [...animatingOPR.red].sort((a, b) => b.score - a.score),
+    [animatingOPR.red]
+  );
+  
+  const sortedBlueOPR = useMemo(() => 
+    [...animatingOPR.blue].sort((a, b) => b.score - a.score),
+    [animatingOPR.blue]
+  );
+
 
   useEffect(() => {
     // Entrance animation
@@ -18,17 +33,128 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
   }, []);
 
   useEffect(() => {
-    // Score change animation
+    // Score change animation with scrolling effect
     if (prevScores.red !== state.redScore) {
       setScoreChanged(prev => ({ ...prev, red: true }));
-      setTimeout(() => setScoreChanged(prev => ({ ...prev, red: false })), 600);
+      
+      // Animate from old score to new score
+      const startScore = prevScores.red;
+      const endScore = state.redScore;
+      const startTime = Date.now();
+      const duration = 200; // Animation duration in ms
+      
+      const animateScore = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        const currentScore = Math.round(startScore + (endScore - startScore) * easeOutCubic);
+        
+        setAnimatingScores(prev => ({ ...prev, red: currentScore }));
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateScore);
+        } else {
+          setScoreChanged(prev => ({ ...prev, red: false }));
+        }
+      };
+      
+      requestAnimationFrame(animateScore);
     }
+    
     if (prevScores.blue !== state.blueScore) {
       setScoreChanged(prev => ({ ...prev, blue: true }));
-      setTimeout(() => setScoreChanged(prev => ({ ...prev, blue: false })), 600);
+      
+      // Animate from old score to new score
+      const startScore = prevScores.blue;
+      const endScore = state.blueScore;
+      const startTime = Date.now();
+      const duration = 200; // Animation duration in ms
+      
+      const animateScore = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        const currentScore = Math.round(startScore + (endScore - startScore) * easeOutCubic);
+        
+        setAnimatingScores(prev => ({ ...prev, blue: currentScore }));
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateScore);
+        } else {
+          setScoreChanged(prev => ({ ...prev, blue: false }));
+        }
+      };
+      
+      requestAnimationFrame(animateScore);
     }
+    
     setPrevScores({ red: state.redScore, blue: state.blueScore });
-  }, [state.redScore, state.blueScore, prevScores.red, prevScores.blue]);
+  }, [state.redScore, state.blueScore]);
+
+  useEffect(() => {
+    // OPR change animation
+    const animateOPRChanges = (alliance: 'red' | 'blue') => {
+      const currentOPR = state[alliance === 'red' ? 'redOPR' : 'blueOPR'];
+      const prevOPRData = prevOPR[alliance];
+      const changedPlayers = new Set<string>();
+      
+      currentOPR.forEach((player, index) => {
+        const prevPlayer = prevOPRData[index];
+        if (prevPlayer && prevPlayer.username === player.username && prevPlayer.score !== player.score) {
+          changedPlayers.add(player.username);
+          
+          // Animate from old score to new score
+          const startScore = prevPlayer.score;
+          const endScore = player.score;
+          const startTime = Date.now();
+          const duration = 200;
+          
+          const animateScore = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+            const currentScore = Math.round(startScore + (endScore - startScore) * easeOutCubic);
+            
+            setAnimatingOPR(prev => ({
+              ...prev,
+              [alliance]: prev[alliance].map(p => 
+                p.username === player.username ? { ...p, score: currentScore } : p
+              )
+            }));
+            
+            if (progress < 1) {
+              requestAnimationFrame(animateScore);
+            } else {
+              setOprChanged(prev => ({
+                ...prev,
+                [alliance]: new Set([...prev[alliance]].filter(name => name !== player.username))
+              }));
+            }
+          };
+          
+          requestAnimationFrame(animateScore);
+        }
+      });
+      
+      if (changedPlayers.size > 0) {
+        setOprChanged(prev => ({
+          ...prev,
+          [alliance]: new Set([...prev[alliance], ...changedPlayers])
+        }));
+      }
+    };
+    
+    animateOPRChanges('red');
+    animateOPRChanges('blue');
+    
+    setPrevOPR({ red: state.redOPR, blue: state.blueOPR });
+  }, [state.redOPR, state.blueOPR]);
+
 
   return (
     <>
@@ -58,19 +184,24 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           <div className="flex items-center justify-center gap-6">
             {/* Red Alliance OPR */}
             <div className="text-xs text-red-100 opacity-90 space-y-1 text-right">
-              {state.redOPR.map((player, index) => (
-                <div key={index} className="flex items-center justify-end gap-2">
+              {sortedRedOPR.map((player, index) => (
+                <div 
+                  key={player.username} 
+                  className="flex items-center justify-end gap-2"
+                >
                   <span className="truncate max-w-[100px]">{player.username}</span>
-                  <span className="font-mono bg-red-700/50 px-2 py-1 rounded">{player.score}</span>
+                  <span className={`font-mono bg-red-700/50 px-2 py-1 rounded ${
+                    oprChanged.red.has(player.username) ? 'animate-score-text-change' : ''
+                  }`}>{player.score}</span>
                 </div>
               ))}
             </div>
             
             {/* Red Score */}
-            <div className={`bg-red-600/80 rounded-lg p-6 text-center min-w-[150px] ${
-              scoreChanged.red ? 'animate-score-change bg-red-500' : ''
-            }`}>
-              <div className="text-5xl font-mono font-bold">{state.redScore}</div>
+            <div className="bg-red-600/80 rounded-lg p-6 text-center min-w-[150px] animate-red-glow">
+              <div className={`text-5xl font-mono font-bold ${
+                scoreChanged.red ? 'animate-score-text-change' : ''
+              }`}>{animatingScores.red}</div>
             </div>
             
             {/* Logo */}
@@ -85,17 +216,22 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
             </div>
             
             {/* Blue Score */}
-            <div className={`bg-blue-600/80 rounded-lg p-6 text-center min-w-[150px] ${
-              scoreChanged.blue ? 'animate-score-change bg-blue-500' : ''
-            }`}>
-              <div className="text-5xl font-mono font-bold">{state.blueScore}</div>
+            <div className="bg-blue-600/80 rounded-lg p-6 text-center min-w-[150px] animate-blue-glow">
+              <div className={`text-5xl font-mono font-bold ${
+                scoreChanged.blue ? 'animate-score-text-change' : ''
+              }`}>{animatingScores.blue}</div>
             </div>
             
             {/* Blue Alliance OPR */}
             <div className="text-xs text-blue-100 opacity-90 space-y-1 text-left">
-              {state.blueOPR.map((player, index) => (
-                <div key={index} className="flex items-center justify-start gap-2">
-                  <span className="font-mono bg-blue-700/50 px-2 py-1 rounded">{player.score}</span>
+              {sortedBlueOPR.map((player, index) => (
+                <div 
+                  key={player.username} 
+                  className="flex items-center justify-start gap-2"
+                >
+                  <span className={`font-mono bg-blue-700/50 px-2 py-1 rounded ${
+                    oprChanged.blue.has(player.username) ? 'animate-score-text-change' : ''
+                  }`}>{player.score}</span>
                   <span className="truncate max-w-[100px]">{player.username}</span>
                 </div>
               ))}
@@ -116,18 +252,51 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           }
         }
 
-        @keyframes score-change {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-          100% { transform: scale(1); }
+        @keyframes score-text-change {
+          0% { 
+            color: rgba(255, 255, 255, 1);
+          }
+          50% { 
+            color: rgba(255, 255, 255, 1);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+          }
+          100% { 
+            color: rgba(255, 255, 255, 1);
+          }
+        }
+
+        @keyframes red-glow {
+          0%, 100% { 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+          50% { 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.3);
+          }
+        }
+
+        @keyframes blue-glow {
+          0%, 100% { 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+          50% { 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.3);
+          }
         }
 
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
         }
 
-        .animate-score-change {
-          animation: score-change 0.6s ease-out;
+        .animate-score-text-change {
+          animation: score-text-change 0.2s ease-out;
+        }
+
+        .animate-red-glow {
+          animation: red-glow 3s ease-in-out infinite;
+        }
+
+        .animate-blue-glow {
+          animation: blue-glow 3s ease-in-out infinite;
         }
       `}</style>
     </>
