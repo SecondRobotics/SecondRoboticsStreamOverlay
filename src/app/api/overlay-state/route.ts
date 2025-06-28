@@ -51,7 +51,7 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
     const content = readFileSync(filePath, 'utf-8');
     const lines = content.split('\n').map(line => line.trim()).filter(line => line);
     
-    if (lines.length >= 6) {
+    if (lines.length > 0) {
       const parseOPRLine = (line: string): { username: string; score: number } => {
         // Parse "username: score" format
         const colonIndex = line.indexOf(':');
@@ -65,14 +65,14 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
       };
 
       const red = [
-        parseOPRLine(lines[0]),
-        parseOPRLine(lines[1]),
-        parseOPRLine(lines[2])
+        lines[0] ? parseOPRLine(lines[0]) : { username: '', score: 0 },
+        lines[1] ? parseOPRLine(lines[1]) : { username: '', score: 0 },
+        lines[2] ? parseOPRLine(lines[2]) : { username: '', score: 0 }
       ];
       const blue = [
-        parseOPRLine(lines[3]),
-        parseOPRLine(lines[4]),
-        parseOPRLine(lines[5])
+        lines[3] ? parseOPRLine(lines[3]) : { username: '', score: 0 },
+        lines[4] ? parseOPRLine(lines[4]) : { username: '', score: 0 },
+        lines[5] ? parseOPRLine(lines[5]) : { username: '', score: 0 }
       ];
       return { red, blue };
     }
