@@ -1,6 +1,7 @@
 import { OverlayState } from "../../lib/overlayState";
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
+import { pointsDifferentialTracker } from "../../lib/pointsDifferentialTracker";
 
 interface MatchViewProps {
   state: OverlayState;
@@ -17,7 +18,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
   const [animatingOPR, setAnimatingOPR] = useState({ red: state.redOPR, blue: state.blueOPR });
   const [showAutonomous, setShowAutonomous] = useState(false);
   const [gameState, setGameState] = useState<string>('');
-  const [showTimer, setShowTimer] = useState(true);
+  const [showTimer, setShowTimer] = useState(false);
   // Memoize sorted OPR arrays to prevent unnecessary re-calculations
   const sortedRedOPR = useMemo(() => {
     return [...animatingOPR.red]
@@ -44,13 +45,18 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
     const totalSeconds = parseTimeToSeconds(state.matchTime);
     if (totalSeconds === 0) return 'text-red-500';
     if (totalSeconds <= 30) return 'text-yellow-400';
+    if (totalSeconds <= 150 && totalSeconds > 135) return 'text-green-400'; // Auto period
     return 'text-white';
   }, [state.matchTime]);
 
 
   useEffect(() => {
-    // Entrance animation
-    setIsVisible(true);
+    // Entrance animation with delay
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -78,15 +84,28 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
             setGameState(trimmedState);
             // Show/hide timer based on game state
             setShowTimer(trimmedState !== 'FINISHED');
+            
+            // Start/stop differential tracking based on game state
+            if (trimmedState !== 'FINISHED' && !pointsDifferentialTracker.isActive()) {
+              pointsDifferentialTracker.startLogging(state.gameFileLocation);
+            } else if (trimmedState === 'FINISHED' && pointsDifferentialTracker.isActive()) {
+              pointsDifferentialTracker.stopLogging();
+            }
           }
         } catch (error) {
           setGameState('Error reading GameState.txt');
+          // If we can't read the game state, show the timer by default
+          setShowTimer(true);
         }
       };
       
       readGameState();
       const interval = setInterval(readGameState, 500);
       return () => clearInterval(interval);
+    } else {
+      // If no game file location, show timer by default
+      setShowTimer(true);
+      setGameState('');
     }
   }, [state.gameFileLocation]);
 
@@ -104,8 +123,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
       setTimeout(() => setScoreChanged(prev => ({ ...prev, blue: false })), 500);
     }
     
+    // Log points differential when scores change
+    pointsDifferentialTracker.logPoint(state.redScore, state.blueScore, state.matchTime, gameState);
+    
     setPrevScores({ red: state.redScore, blue: state.blueScore });
-  }, [state.redScore, state.blueScore]);
+  }, [state.redScore, state.blueScore, state.matchTime, gameState]);
 
   useEffect(() => {
     // Update animating OPR to match current state
@@ -186,15 +208,6 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           </div>
         </div>
         
-        {/* GameState Debug Display */}
-        {gameState && (
-          <div className="bg-gray-900/85 backdrop-blur-sm rounded-lg p-3 border border-white/30 animate-fade-in">
-            <div className="text-xs text-gray-400 mb-1">GameState.txt:</div>
-            <div className="text-sm font-mono text-yellow-400">
-              {gameState}
-            </div>
-          </div>
-        )}
       </div>
 
 
@@ -205,7 +218,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           {/* Timer Container */}
           <div className={`relative transition-all duration-700 ${showTimer ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
             {/* Autonomous Animation - Above timer */}
-            <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-purple-600/90 rounded-lg px-6 py-2 transition-all duration-700 ${
+            <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-green-600/90 rounded-lg px-6 py-2 transition-all duration-700 ${
               showAutonomous ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
             }`}>
               <span className="text-lg font-bold text-white">AUTO</span>

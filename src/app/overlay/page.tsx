@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { getOverlayState, useOverlayState, OverlayState } from "../lib/overlayState";
 import MatchView from "./components/MatchView";
 import StartingSoon from "./components/StartingSoon";
+import Results from "./components/Results";
 
 export default function Overlay() {
   const [currentTime, setCurrentTime] = useState("");
@@ -46,6 +47,8 @@ export default function Overlay() {
     switch (overlayState.mode) {
       case 'match':
         return <MatchView state={overlayState} currentTime={currentTime} />;
+      case 'results':
+        return <Results state={overlayState} currentTime={currentTime} />;
       case 'starting-soon':
       default:
         return <StartingSoon state={overlayState} currentTime={currentTime} />;

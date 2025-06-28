@@ -126,6 +126,16 @@ export default function Dashboard() {
               >
                 Match View
               </button>
+              <button
+                onClick={() => setOverlayMode('results')}
+                className={`w-full font-medium py-2 px-4 rounded-md transition-colors ${
+                  overlayState.mode === 'results' 
+                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                    : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white'
+                }`}
+              >
+                Results
+              </button>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-export type OverlayMode = 'match' | 'starting-soon';
+export type OverlayMode = 'match' | 'starting-soon' | 'results';
 
 export interface OverlayState {
   mode: OverlayMode;
