@@ -5,6 +5,7 @@ import { getOverlayState, useOverlayState, OverlayState } from "../lib/overlaySt
 import MatchView from "./components/MatchView";
 import StartingSoon from "./components/StartingSoon";
 import Results from "./components/Results";
+import SeriesIndicator from "./components/SeriesIndicator";
 
 export default function Overlay() {
   const [currentTime, setCurrentTime] = useState("");
@@ -18,6 +19,12 @@ export default function Overlay() {
     redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
     blueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
     lastUpdated: Date.now(),
+    seriesEnabled: false,
+    seriesType: 'bo3',
+    redAllianceName: 'Red Alliance',
+    blueAllianceName: 'Blue Alliance',
+    redSeriesScore: 0,
+    blueSeriesScore: 0,
   });
 
   useEffect(() => {
@@ -57,6 +64,15 @@ export default function Overlay() {
 
   return (
     <div className="min-h-screen bg-transparent text-white relative overflow-hidden">
+      {overlayState.seriesEnabled && (
+        <SeriesIndicator
+          seriesType={overlayState.seriesType}
+          redScore={overlayState.redSeriesScore}
+          blueScore={overlayState.blueSeriesScore}
+          redAllianceName={overlayState.redAllianceName}
+          blueAllianceName={overlayState.blueAllianceName}
+        />
+      )}
       {renderOverlayContent()}
     </div>
   );

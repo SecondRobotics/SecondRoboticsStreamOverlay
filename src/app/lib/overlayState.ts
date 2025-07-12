@@ -4,12 +4,19 @@ export interface OverlayState {
   mode: OverlayMode;
   matchTitle: string;
   matchTime: string;
+  startingTime?: string;
   gameFileLocation: string;
   redScore: number;
   blueScore: number;
   redOPR: { username: string; score: number }[];
   blueOPR: { username: string; score: number }[];
   lastUpdated: number;
+  seriesEnabled: boolean;
+  seriesType: 'bo3' | 'bo5' | 'bo7';
+  redAllianceName: string;
+  blueAllianceName: string;
+  redSeriesScore: number;
+  blueSeriesScore: number;
 }
 
 const defaultState: OverlayState = {
@@ -22,6 +29,12 @@ const defaultState: OverlayState = {
   redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
   blueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
   lastUpdated: Date.now(),
+  seriesEnabled: false,
+  seriesType: 'bo3',
+  redAllianceName: 'Red Alliance',
+  blueAllianceName: 'Blue Alliance',
+  redSeriesScore: 0,
+  blueSeriesScore: 0,
 };
 
 export const getOverlayState = async (): Promise<OverlayState> => {

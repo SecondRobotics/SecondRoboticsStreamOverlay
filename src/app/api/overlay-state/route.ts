@@ -8,6 +8,7 @@ export interface OverlayState {
   mode: OverlayMode;
   matchTitle: string;
   matchTime: string;
+  startingTime?: string;
   gameFileLocation: string;
   redScore: number;
   blueScore: number;
@@ -20,6 +21,7 @@ let overlayState: OverlayState = {
   mode: 'starting-soon',
   matchTitle: 'FRC Stream Overlay',
   matchTime: '00:00',
+  startingTime: '',
   gameFileLocation: '',
   redScore: 0,
   blueScore: 0,
