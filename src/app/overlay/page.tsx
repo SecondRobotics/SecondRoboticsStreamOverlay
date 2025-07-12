@@ -25,6 +25,13 @@ export default function Overlay() {
     blueAllianceName: 'Blue Alliance',
     redSeriesScore: 0,
     blueSeriesScore: 0,
+    allianceBranding: false,
+    redTeamId: undefined,
+    blueTeamId: undefined,
+    redPrimaryColor: undefined,
+    redSecondaryColor: undefined,
+    bluePrimaryColor: undefined,
+    blueSecondaryColor: undefined,
   });
 
   useEffect(() => {
@@ -71,6 +78,11 @@ export default function Overlay() {
           blueScore={overlayState.blueSeriesScore}
           redAllianceName={overlayState.redAllianceName}
           blueAllianceName={overlayState.blueAllianceName}
+          allianceBranding={overlayState.allianceBranding}
+          redPrimaryColor={overlayState.redPrimaryColor}
+          redSecondaryColor={overlayState.redSecondaryColor}
+          bluePrimaryColor={overlayState.bluePrimaryColor}
+          blueSecondaryColor={overlayState.blueSecondaryColor}
         />
       )}
       {renderOverlayContent()}

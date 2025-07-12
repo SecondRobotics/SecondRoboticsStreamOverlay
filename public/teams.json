@@ -1,0 +1,52 @@
+{
+  "teams": [
+    {
+        "id": "team1",
+        "name": "PL:UNC",
+        "primaryColor": "#ffde59",
+        "secondaryColor": "#5170ff"
+    },
+    {
+        "id": "team2",
+        "name": "Team Cooked",
+        "primaryColor": "#d8031c",
+        "secondaryColor": "#6497bf"
+    },
+    {
+        "id": "team3",
+        "name": "Kryptonite",
+        "primaryColor": "#108B16",
+        "secondaryColor": "#0B0E02"
+    },
+    {
+      "id": "team4",
+      "name": "Steel Warriors",
+      "primaryColor": "#5C6BC0",
+      "secondaryColor": "#9E9E9E"
+    },
+    {
+      "id": "team5",
+      "name": "Quantum Force",
+      "primaryColor": "#00BCD4",
+      "secondaryColor": "#8BC34A"
+    },
+    {
+      "id": "team6",
+      "name": "Neon Runners",
+      "primaryColor": "#E91E63",
+      "secondaryColor": "#FFC107"
+    },
+    {
+      "id": "team7",
+      "name": "Shadow Ops",
+      "primaryColor": "#424242",
+      "secondaryColor": "#616161"
+    },
+    {
+      "id": "team8",
+      "name": "Voltage Strike",
+      "primaryColor": "#FFEB3B",
+      "secondaryColor": "#FF5722"
+    }
+  ]
+}

@@ -17,6 +17,13 @@ export interface OverlayState {
   blueAllianceName: string;
   redSeriesScore: number;
   blueSeriesScore: number;
+  redTeamId?: string;
+  blueTeamId?: string;
+  redPrimaryColor?: string;
+  redSecondaryColor?: string;
+  bluePrimaryColor?: string;
+  blueSecondaryColor?: string;
+  allianceBranding: boolean;
 }
 
 const defaultState: OverlayState = {
@@ -35,6 +42,7 @@ const defaultState: OverlayState = {
   blueAllianceName: 'Blue Alliance',
   redSeriesScore: 0,
   blueSeriesScore: 0,
+  allianceBranding: false,
 };
 
 export const getOverlayState = async (): Promise<OverlayState> => {

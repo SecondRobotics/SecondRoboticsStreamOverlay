@@ -34,6 +34,53 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
       .slice(0, 3);
   }, [animatingOPR.blue]);
 
+  // Memoize color calculations for alliance branding
+  const colorConfig = useMemo(() => {
+    console.log('MatchView Color Config:', {
+      allianceBranding: state.allianceBranding,
+      redPrimaryColor: state.redPrimaryColor,
+      bluePrimaryColor: state.bluePrimaryColor,
+      redSecondaryColor: state.redSecondaryColor,
+      blueSecondaryColor: state.blueSecondaryColor
+    });
+    
+    return {
+      redScoreBackground: state.allianceBranding && state.redPrimaryColor 
+        ? state.redPrimaryColor 
+        : '#DC2626',
+      blueScoreBackground: state.allianceBranding && state.bluePrimaryColor 
+        ? state.bluePrimaryColor 
+        : '#2563EB',
+      redOPRBackground: state.allianceBranding && state.redSecondaryColor 
+        ? state.redSecondaryColor 
+        : '#B91C1C',
+      blueOPRBackground: state.allianceBranding && state.blueSecondaryColor 
+        ? state.blueSecondaryColor 
+        : '#1E40AF',
+      redGlowColor: state.allianceBranding && state.redPrimaryColor 
+        ? state.redPrimaryColor 
+        : '#EF4444',
+      blueGlowColor: state.allianceBranding && state.bluePrimaryColor 
+        ? state.bluePrimaryColor 
+        : '#3B82F6'
+    };
+  }, [state.allianceBranding, state.redPrimaryColor, state.bluePrimaryColor, state.redSecondaryColor, state.blueSecondaryColor]);
+
+  // Function to get team logo path based on team name
+  const getTeamLogoPath = (teamName: string): string | null => {
+    if (!teamName) return null;
+    
+    // Map team names to logo file names
+    const logoMap: { [key: string]: string } = {
+      'PL:UNC': 'PL_UNC.PNG',
+      'Team Cooked': 'Team Cooked.png',
+      'Kryptonite': 'Kryptonite.png'
+    };
+    
+    const logoFileName = logoMap[teamName];
+    return logoFileName ? `/Team_Logos/${logoFileName}` : null;
+  };
+
   // Parse time string to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
     const [minutes, seconds] = timeStr.split(':').map(Number);
@@ -230,7 +277,50 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           </div>
           
           {/* Score Container */}
-          <div className="bg-gray-900/85 backdrop-blur-sm rounded-lg p-6 border border-white/30 shadow-2xl w-full relative">
+          <div 
+            className="backdrop-blur-sm rounded-lg p-6 border border-white/30 shadow-2xl w-full relative"
+            style={{
+              background: state.allianceBranding && state.redPrimaryColor && state.bluePrimaryColor
+                ? `linear-gradient(135deg, 
+                    ${state.redPrimaryColor}40 0%, 
+                    ${state.redSecondaryColor || state.redPrimaryColor}25 30%, 
+                    rgba(17, 24, 39, 0.85) 50%, 
+                    ${state.blueSecondaryColor || state.bluePrimaryColor}25 70%, 
+                    ${state.bluePrimaryColor}40 100%)`
+                : 'rgba(17, 24, 39, 0.85)'
+            }}
+          >
+            {/* Team Logos */}
+            {state.allianceBranding && (
+              <>
+                {/* Red Team Logo - Left Side */}
+                {getTeamLogoPath(state.redAllianceName) && (
+                  <div className="absolute left-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
+                    <Image
+                      src={getTeamLogoPath(state.redAllianceName)!}
+                      alt={`${state.redAllianceName} Logo`}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                      className="drop-shadow-lg"
+                    />
+                  </div>
+                )}
+                
+                {/* Blue Team Logo - Right Side */}
+                {getTeamLogoPath(state.blueAllianceName) && (
+                  <div className="absolute right-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
+                    <Image
+                      src={getTeamLogoPath(state.blueAllianceName)!}
+                      alt={`${state.blueAllianceName} Logo`}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                      className="drop-shadow-lg"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
             {/* Logo centered */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 z-10">
               <Image
@@ -262,7 +352,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                 
                 {/* Red Score */}
                 <div className="bg-red-600/80 rounded-lg p-8 text-center min-w-[180px] animate-red-glow mr-16">
-                  <div className={`text-6xl font-mono font-bold ${
+                  <div className={`text-6xl font-mono font-bold text-white ${
                     scoreChanged.red ? 'animate-score-text-change' : ''
                   }`}>{animatingScores.red}</div>
                 </div>
@@ -275,7 +365,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
               <div className="flex items-center justify-start gap-4 flex-1">
                 {/* Blue Score */}
                 <div className="bg-blue-600/80 rounded-lg p-8 text-center min-w-[180px] animate-blue-glow ml-16">
-                  <div className={`text-6xl font-mono font-bold ${
+                  <div className={`text-6xl font-mono font-bold text-white ${
                     scoreChanged.blue ? 'animate-score-text-change' : ''
                   }`}>{animatingScores.blue}</div>
                 </div>
@@ -327,6 +417,14 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           }
         }
 
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
+        }
+
+        .animate-score-text-change {
+          animation: score-text-change 0.5s ease-out;
+        }
+
         @keyframes red-glow {
           0%, 100% { 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -345,20 +443,27 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
           }
         }
 
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-
-        .animate-score-text-change {
-          animation: score-text-change 0.5s ease-out;
-        }
-
         .animate-red-glow {
           animation: red-glow 3s ease-in-out infinite;
         }
 
         .animate-blue-glow {
           animation: blue-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+          0%, 100% { 
+            border-opacity: 0.8;
+            filter: brightness(1);
+          }
+          50% { 
+            border-opacity: 1;
+            filter: brightness(1.3);
+          }
+        }
+
+        .animate-pulse-border {
+          animation: pulse-border 2s ease-in-out infinite;
         }
       `}</style>
     </>

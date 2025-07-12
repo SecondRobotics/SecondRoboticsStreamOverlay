@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { getOverlayState, setOverlayState, useOverlayState, OverlayState } from "./lib/overlayState";
 import FileViewer from "./components/FileViewer";
+import { Team, loadTeams } from "./lib/teams";
 
 export default function Dashboard() {
   const [overlayUrl, setOverlayUrl] = useState("");
+  const [teams, setTeams] = useState<Team[]>([]);
   const [overlayState, setLocalOverlayState] = useState<OverlayState>({
     mode: 'starting-soon',
     matchTitle: 'FRC Stream Overlay',
@@ -24,17 +26,22 @@ export default function Dashboard() {
     blueAllianceName: 'Blue Alliance',
     redSeriesScore: 0,
     blueSeriesScore: 0,
+    allianceBranding: false,
   });
   const [isEditing, setIsEditing] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load initial state
-    const loadInitialState = async () => {
-      const state = await getOverlayState();
+    // Load initial state and teams
+    const loadInitialData = async () => {
+      const [state, teamsData] = await Promise.all([
+        getOverlayState(),
+        loadTeams()
+      ]);
       setLocalOverlayState(state);
+      setTeams(teamsData);
     };
     
-    loadInitialState();
+    loadInitialData();
     
     const cleanup = useOverlayState((state) => {
       // Only update state if user isn't currently editing a field
@@ -251,6 +258,32 @@ export default function Dashboard() {
               
               {overlayState.seriesEnabled && (
                 <>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="allianceBranding" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Alliance Branding
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={overlayState.allianceBranding}
+                      onClick={() => {
+                        const enabled = !overlayState.allianceBranding;
+                        setLocalOverlayState(prev => ({ ...prev, allianceBranding: enabled }));
+                        setOverlayState({ allianceBranding: enabled });
+                      }}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        overlayState.allianceBranding ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                      }`}
+                    >
+                      <span className="sr-only">Enable Alliance Branding</span>
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          overlayState.allianceBranding ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Series Type
@@ -304,6 +337,75 @@ export default function Dashboard() {
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Blue Alliance"
                       />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                        Red Team
+                      </label>
+                      <select
+                        value={overlayState.redTeamId || ''}
+                        onChange={(e) => {
+                          const teamId = e.target.value;
+                          const team = teams.find(t => t.id === teamId);
+                          if (team) {
+                            setLocalOverlayState(prev => ({ 
+                              ...prev, 
+                              redTeamId: team.id,
+                              redAllianceName: team.name,
+                              redPrimaryColor: team.primaryColor,
+                              redSecondaryColor: team.secondaryColor
+                            }));
+                            setOverlayState({ 
+                              redTeamId: team.id,
+                              redAllianceName: team.name,
+                              redPrimaryColor: team.primaryColor,
+                              redSecondaryColor: team.secondaryColor
+                            });
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="">Custom Team</option>
+                        {teams.length > 0 ? teams.map(team => (
+                          <option key={team.id} value={team.id}>{team.name}</option>
+                        )) : <option disabled>Loading teams...</option>}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                        Blue Team
+                      </label>
+                      <select
+                        value={overlayState.blueTeamId || ''}
+                        onChange={(e) => {
+                          const teamId = e.target.value;
+                          const team = teams.find(t => t.id === teamId);
+                          if (team) {
+                            setLocalOverlayState(prev => ({ 
+                              ...prev, 
+                              blueTeamId: team.id,
+                              blueAllianceName: team.name,
+                              bluePrimaryColor: team.primaryColor,
+                              blueSecondaryColor: team.secondaryColor
+                            }));
+                            setOverlayState({ 
+                              blueTeamId: team.id,
+                              blueAllianceName: team.name,
+                              bluePrimaryColor: team.primaryColor,
+                              blueSecondaryColor: team.secondaryColor
+                            });
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="">Custom Team</option>
+                        {teams.length > 0 ? teams.map(team => (
+                          <option key={team.id} value={team.id}>{team.name}</option>
+                        )) : <option disabled>Loading teams...</option>}
+                      </select>
                     </div>
                   </div>
                   
