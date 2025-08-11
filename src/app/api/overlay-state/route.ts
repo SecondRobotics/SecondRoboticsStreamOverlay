@@ -25,8 +25,8 @@ let overlayState: OverlayState = {
   gameFileLocation: '',
   redScore: 0,
   blueScore: 0,
-  redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
-  blueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+  redOPR: [],
+  blueOPR: [],
   lastUpdated: Date.now(),
 };
 
@@ -66,16 +66,11 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
         return { username: line, score: 0 };
       };
 
-      const red = [
-        lines[0] ? parseOPRLine(lines[0]) : { username: '', score: 0 },
-        lines[1] ? parseOPRLine(lines[1]) : { username: '', score: 0 },
-        lines[2] ? parseOPRLine(lines[2]) : { username: '', score: 0 }
-      ];
-      const blue = [
-        lines[3] ? parseOPRLine(lines[3]) : { username: '', score: 0 },
-        lines[4] ? parseOPRLine(lines[4]) : { username: '', score: 0 },
-        lines[5] ? parseOPRLine(lines[5]) : { username: '', score: 0 }
-      ];
+      // Split lines between red and blue teams dynamically
+      const midpoint = Math.ceil(lines.length / 2);
+      const red = lines.slice(0, midpoint).map(line => parseOPRLine(line));
+      const blue = lines.slice(midpoint).map(line => parseOPRLine(line));
+      
       return { red, blue };
     }
   } catch (error) {
@@ -83,8 +78,8 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
   }
   
   return { 
-    red: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }], 
-    blue: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }] 
+    red: [], 
+    blue: [] 
   };
 };
 

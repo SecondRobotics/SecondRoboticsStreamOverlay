@@ -49,15 +49,13 @@ export default function Results({ state, currentTime }: ResultsProps) {
   const sortedRedOPR = useMemo(() => {
     return [...state.redOPR]
       .filter(player => player.username && player.username.trim() !== '')
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .sort((a, b) => b.score - a.score);
   }, [state.redOPR]);
   
   const sortedBlueOPR = useMemo(() => {
     return [...state.blueOPR]
       .filter(player => player.username && player.username.trim() !== '')
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .sort((a, b) => b.score - a.score);
   }, [state.blueOPR]);
 
   // Determine winner
@@ -217,7 +215,7 @@ export default function Results({ state, currentTime }: ResultsProps) {
       }`}>
         
         {/* Event Title - Outside Container */}
-        <div className="absolute -left-32 top-1/2 -translate-y-1/2 -rotate-90 origin-center z-20">
+        <div className="absolute -left-64 top-1/2 -translate-y-1/2 -rotate-90 origin-center z-20">
           <div className="text-center whitespace-nowrap">
             <h1 className="text-6xl font-black text-white/90 mb-4 tracking-widest">{state.matchTitle}</h1>
             <div className="text-2xl text-gray-300/80 font-light tracking-wide">MATCH RESULTS</div>
