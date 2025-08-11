@@ -4,49 +4,57 @@
         "id": "team1",
         "name": "PL:UNC",
         "primaryColor": "#ffde59",
-        "secondaryColor": "#5170ff"
+        "secondaryColor": "#5170ff",
+        "players": ["xChen", "JordanS", "TaylorMtz"]
     },
     {
         "id": "team2",
         "name": "Team Cooked",
         "primaryColor": "#d8031c",
-        "secondaryColor": "#6497bf"
+        "secondaryColor": "#6497bf",
+        "players": ["Lethimcook", "egged", "rippo"]
     },
     {
         "id": "team3",
         "name": "Kryptonite",
         "primaryColor": "#108B16",
-        "secondaryColor": "#0B0E02"
+        "secondaryColor": "#0B0E02",
+        "players": ["Totally a Meme", "BlakeR", "WatergamerSquad"]
     },
     {
       "id": "team4",
       "name": "Steel Warriors",
       "primaryColor": "#5C6BC0",
-      "secondaryColor": "#9E9E9E"
+      "secondaryColor": "#9E9E9E",
+      "players": ["DrewA", "SageP", "QuinnM"]
     },
     {
       "id": "team5",
       "name": "Quantum Force",
       "primaryColor": "#00BCD4",
-      "secondaryColor": "#8BC34A"
+      "secondaryColor": "#8BC34A",
+      "players": ["RowanG", "SkylerB", "PhoenixW"]
     },
     {
       "id": "team6",
       "name": "Neon Runners",
       "primaryColor": "#E91E63",
-      "secondaryColor": "#FFC107"
+      "secondaryColor": "#FFC107",
+      "players": ["HunterT", "LaneJ", "EmeryC"]
     },
     {
       "id": "team7",
       "name": "Shadow Ops",
       "primaryColor": "#424242",
-      "secondaryColor": "#616161"
+      "secondaryColor": "#616161",
+      "players": ["FinleyM", "KaiW", "RemyA"]
     },
     {
       "id": "team8",
       "name": "Voltage Strike",
       "primaryColor": "#FFEB3B",
-      "secondaryColor": "#FF5722"
+      "secondaryColor": "#FF5722",
+      "players": ["NovaG", "JadenK", "EllisC"]
     }
   ]
 }

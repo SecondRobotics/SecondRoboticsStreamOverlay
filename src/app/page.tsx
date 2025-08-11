@@ -60,6 +60,12 @@ export default function Dashboard() {
     alert("Overlay URL copied to clipboard!");
   };
 
+  const copyMatchPreviewUrl = async () => {
+    const url = `${window.location.origin}/match-preview`;
+    await navigator.clipboard.writeText(url);
+    alert("Match Preview URL copied to clipboard!");
+  };
+
   const setOverlayMode = async (mode: OverlayState['mode']) => {
     // Update local state immediately for instant UI feedback
     setLocalOverlayState(prev => ({ ...prev, mode }));
@@ -92,18 +98,36 @@ export default function Dashboard() {
               Overlay Management
             </h2>
             <div className="space-y-3">
-              <Link
-                href="/overlay"
-                className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
-              >
-                View Overlay
-              </Link>
-              <button
-                onClick={copyOverlayUrl}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-              >
-                Copy Overlay URL
-              </button>
+              <div className="flex gap-2">
+                <Link
+                  href="/overlay"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                >
+                  View Overlay
+                </Link>
+                <button
+                  onClick={copyOverlayUrl}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                  title="Copy Overlay URL"
+                >
+                  📋
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href="/match-preview"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                >
+                  View Match Preview
+                </Link>
+                <button
+                  onClick={copyMatchPreviewUrl}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                  title="Copy Match Preview URL"
+                >
+                  📋
+                </button>
+              </div>
               {overlayUrl && (
                 <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 break-all">
                   {overlayUrl}
