@@ -109,10 +109,40 @@ export default function MatchPreview() {
   return (
     <>
       {/* Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        {/* Complex abstract noise pattern */}
+        <div className="absolute inset-0 opacity-12" style={{
+          backgroundImage: `
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            conic-gradient(from 0deg at 60% 80%, transparent 0deg, rgba(255,255,255,0.15) 90deg, transparent 180deg, rgba(255,255,255,0.1) 270deg, transparent 360deg)
+          `,
+          backgroundSize: '800px 600px, 600px 800px, 400px 400px, 1000px 1000px',
+          filter: 'blur(1px)'
+        }}></div>
+        {/* Flowing organic shapes */}
+        <div className="absolute inset-0 opacity-8" style={{
+          backgroundImage: `
+            radial-gradient(ellipse 400px 200px at 10% 60%, rgba(255,255,255,0.1) 0%, transparent 40%),
+            radial-gradient(ellipse 300px 600px at 90% 30%, rgba(255,255,255,0.08) 0%, transparent 35%),
+            radial-gradient(ellipse 500px 150px at 50% 90%, rgba(255,255,255,0.12) 0%, transparent 45%)
+          `,
+          backgroundSize: '1200px 800px, 800px 1200px, 1000px 600px',
+          transform: 'rotate(15deg) scale(1.2)'
+        }}></div>
+        {/* Random scattered dots */}
+        <div className="absolute inset-0 opacity-15" style={{
+          backgroundImage: `radial-gradient(circle at 15% 35%, white 1px, transparent 2px),
+                           radial-gradient(circle at 85% 15%, white 1.5px, transparent 2px),
+                           radial-gradient(circle at 35% 85%, white 1px, transparent 2px),
+                           radial-gradient(circle at 65% 65%, white 1px, transparent 2px)`,
+          backgroundSize: '300px 300px, 250px 250px, 180px 180px, 220px 220px'
+        }}></div>
+      </div>
 
       {/* Main Content */}
-      <div className="min-h-screen flex flex-col relative z-10">
+      <div className="min-h-screen flex flex-col relative z-20">
         
         {/* Event Name */}
         <div className="relative overflow-hidden bg-black/40 backdrop-blur-sm border-b border-white/20">
@@ -128,11 +158,14 @@ export default function MatchPreview() {
         <div className="flex-1 flex relative overflow-hidden">
           {/* Red Alliance */}
           <div 
-            className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow"
+            className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow border-r border-white/10"
             style={{
               background: state.allianceBranding && state.redPrimaryColor 
                 ? `linear-gradient(to right, ${state.redPrimaryColor}, ${state.redSecondaryColor || state.redPrimaryColor})`
-                : 'linear-gradient(to right, rgba(220, 38, 38, 0.3), rgba(239, 68, 68, 0.2))'
+                : 'linear-gradient(to right, rgba(220, 38, 38, 0.3), rgba(239, 68, 68, 0.2))',
+              boxShadow: state.allianceBranding && state.redPrimaryColor
+                ? `inset 0 0 60px ${state.redPrimaryColor}20, inset -4px 0 20px ${state.redPrimaryColor}30`
+                : 'inset 0 0 60px rgba(220, 38, 38, 0.1), inset -4px 0 20px rgba(239, 68, 68, 0.2)'
             }}
           >
             {/* Animated background elements */}
@@ -161,9 +194,13 @@ export default function MatchPreview() {
                     alt={state.redAllianceName}
                     width={384}
                     height={384}
-                    style={{ objectFit: 'contain' }}
-                    className="w-96 h-96"
-                    className="drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
+                    style={{ 
+                      objectFit: 'contain',
+                      filter: state.allianceBranding && state.redPrimaryColor
+                        ? `drop-shadow(0 0 30px ${state.redPrimaryColor}80) drop-shadow(0 0 60px ${state.redSecondaryColor || state.redPrimaryColor}40)`
+                        : undefined
+                    }}
+                    className="w-96 h-96 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
                   />
                 </div>
               )}
@@ -212,14 +249,23 @@ export default function MatchPreview() {
             )}
           </div>
 
+          {/* VS Separator */}
+          <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
+            <div className="bg-black/60 backdrop-blur-lg border border-white/30 rounded-full w-24 h-24 flex items-center justify-center shadow-2xl">
+              <span className="text-white text-2xl font-black tracking-widest">VS</span>
+            </div>
+          </div>
 
           {/* Blue Alliance */}
           <div 
-            className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow"
+            className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow border-l border-white/10"
             style={{
               background: state.allianceBranding && state.bluePrimaryColor 
                 ? `linear-gradient(to left, ${state.bluePrimaryColor}, ${state.blueSecondaryColor || state.bluePrimaryColor})`
-                : 'linear-gradient(to left, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2))'
+                : 'linear-gradient(to left, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2))',
+              boxShadow: state.allianceBranding && state.bluePrimaryColor
+                ? `inset 0 0 60px ${state.bluePrimaryColor}20, inset 4px 0 20px ${state.bluePrimaryColor}30`
+                : 'inset 0 0 60px rgba(37, 99, 235, 0.1), inset 4px 0 20px rgba(59, 130, 246, 0.2)'
             }}
           >
             {/* Animated background elements */}
@@ -248,9 +294,13 @@ export default function MatchPreview() {
                     alt={state.blueAllianceName}
                     width={384}
                     height={384}
-                    style={{ objectFit: 'contain' }}
-                    className="w-96 h-96"
-                    className="drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
+                    style={{ 
+                      objectFit: 'contain',
+                      filter: state.allianceBranding && state.bluePrimaryColor
+                        ? `drop-shadow(0 0 30px ${state.bluePrimaryColor}80) drop-shadow(0 0 60px ${state.blueSecondaryColor || state.bluePrimaryColor}40)`
+                        : undefined
+                    }}
+                    className="w-96 h-96 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
                   />
                 </div>
               )}
