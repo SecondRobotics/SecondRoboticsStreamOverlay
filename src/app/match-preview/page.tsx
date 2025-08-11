@@ -115,8 +115,13 @@ export default function MatchPreview() {
       <div className="min-h-screen flex flex-col relative z-10">
         
         {/* Event Name */}
-        <div className="text-center pt-8 pb-4">
-          <h1 className="text-4xl font-bold text-white tracking-wide">{state.matchTitle}</h1>
+        <div className="relative overflow-hidden bg-black/40 backdrop-blur-sm border-b border-white/20">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+          <div className="relative z-10 text-center py-3">
+            <h1 className="text-3xl font-bold text-white tracking-wide">
+              {state.matchTitle}
+            </h1>
+          </div>
         </div>
 
         {/* VS Layout */}
@@ -131,9 +136,21 @@ export default function MatchPreview() {
             }}
           >
             {/* Animated background elements */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400/5 to-transparent animate-float"></div>
-            <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-red-500/10 rounded-full blur-xl animate-float-delayed"></div>
-            <div className="absolute bottom-1/3 right-1/4 w-24 h-24 bg-red-400/10 rounded-full blur-lg animate-bounce-slow"></div>
+            <div className="absolute inset-0 animate-float" style={{
+              background: state.allianceBranding && state.redSecondaryColor
+                ? `radial-gradient(circle at 30% 50%, ${state.redSecondaryColor}10, transparent)`
+                : 'radial-gradient(circle at 30% 50%, rgba(239, 68, 68, 0.05), transparent)'
+            }}></div>
+            <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full blur-xl animate-float-delayed" style={{
+              backgroundColor: state.allianceBranding && state.redPrimaryColor
+                ? `${state.redPrimaryColor}15`
+                : 'rgba(239, 68, 68, 0.1)'
+            }}></div>
+            <div className="absolute bottom-1/3 right-1/4 w-24 h-24 rounded-full blur-lg animate-bounce-slow" style={{
+              backgroundColor: state.allianceBranding && state.redSecondaryColor
+                ? `${state.redSecondaryColor}15`
+                : 'rgba(248, 113, 113, 0.1)'
+            }}></div>
             
             <div className="text-center relative z-10">
               {/* Team Logo */}
@@ -145,39 +162,40 @@ export default function MatchPreview() {
                     width={384}
                     height={384}
                     style={{ objectFit: 'contain' }}
-                    className="drop-shadow-lg"
+                    className="w-96 h-96"
+                    className="drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
                   />
                 </div>
               )}
               
-              <h2 className="text-7xl font-black text-red-300 tracking-wider animate-glow-red">
+              <h2 
+                className="text-7xl font-black tracking-wider drop-shadow-2xl"
+                style={{
+                  color: state.allianceBranding && state.redPrimaryColor ? 'white' : '#fca5a5',
+                  textShadow: state.allianceBranding && state.redPrimaryColor 
+                    ? `0 0 40px ${state.redPrimaryColor}, 0 0 80px ${state.redSecondaryColor || state.redPrimaryColor}`
+                    : undefined
+                }}
+              >
                 {state.seriesEnabled ? state.redAllianceName : 'RED'}
               </h2>
               
               {/* Team Players */}
               {state.allianceBranding && redTeam?.players && (
-                <div className="mt-6 space-y-2">
-                  {redTeam.players.map((player, index) => (
-                    <div key={index} className="text-xl text-red-200/80 font-medium">
-                      {player}
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {/* Color Reference */}
-              {state.allianceBranding && state.redPrimaryColor && (
-                <div className="mt-6 flex gap-2 justify-center">
+                <div className="mt-6">
                   <div 
-                    className="w-12 h-12 rounded border-2 border-white/50"
-                    style={{ backgroundColor: state.redPrimaryColor }}
-                    title="Primary Color"
-                  />
-                  <div 
-                    className="w-12 h-12 rounded border-2 border-white/50"
-                    style={{ backgroundColor: state.redSecondaryColor || state.redPrimaryColor }}
-                    title="Secondary Color"
-                  />
+                    className="backdrop-blur-sm rounded-lg px-4 py-2 border"
+                    style={{
+                      backgroundColor: state.redSecondaryColor ? `${state.redSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
+                      borderColor: state.redPrimaryColor ? `${state.redPrimaryColor}40` : 'rgba(239, 68, 68, 0.2)'
+                    }}
+                  >
+                    {redTeam.players.map((player, index) => (
+                      <div key={index} className="text-lg text-white font-medium">
+                        {player}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -205,9 +223,21 @@ export default function MatchPreview() {
             }}
           >
             {/* Animated background elements */}
-            <div className="absolute inset-0 bg-gradient-to-bl from-blue-400/5 to-transparent animate-float"></div>
-            <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-float-delayed"></div>
-            <div className="absolute bottom-1/3 left-1/4 w-24 h-24 bg-blue-400/10 rounded-full blur-lg animate-bounce-slow"></div>
+            <div className="absolute inset-0 animate-float" style={{
+              background: state.allianceBranding && state.blueSecondaryColor
+                ? `radial-gradient(circle at 70% 50%, ${state.blueSecondaryColor}10, transparent)`
+                : 'radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.05), transparent)'
+            }}></div>
+            <div className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full blur-xl animate-float-delayed" style={{
+              backgroundColor: state.allianceBranding && state.bluePrimaryColor
+                ? `${state.bluePrimaryColor}15`
+                : 'rgba(59, 130, 246, 0.1)'
+            }}></div>
+            <div className="absolute bottom-1/3 left-1/4 w-24 h-24 rounded-full blur-lg animate-bounce-slow" style={{
+              backgroundColor: state.allianceBranding && state.blueSecondaryColor
+                ? `${state.blueSecondaryColor}15`
+                : 'rgba(96, 165, 250, 0.1)'
+            }}></div>
             
             <div className="text-center relative z-10">
               {/* Team Logo */}
@@ -219,39 +249,40 @@ export default function MatchPreview() {
                     width={384}
                     height={384}
                     style={{ objectFit: 'contain' }}
-                    className="drop-shadow-lg"
+                    className="w-96 h-96"
+                    className="drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
                   />
                 </div>
               )}
               
-              <h2 className="text-7xl font-black text-blue-300 tracking-wider animate-glow-blue">
+              <h2 
+                className="text-7xl font-black tracking-wider drop-shadow-2xl"
+                style={{
+                  color: state.allianceBranding && state.bluePrimaryColor ? 'white' : '#93c5fd',
+                  textShadow: state.allianceBranding && state.bluePrimaryColor 
+                    ? `0 0 40px ${state.bluePrimaryColor}, 0 0 80px ${state.blueSecondaryColor || state.bluePrimaryColor}`
+                    : undefined
+                }}
+              >
                 {state.seriesEnabled ? state.blueAllianceName : 'BLUE'}
               </h2>
               
               {/* Team Players */}
               {state.allianceBranding && blueTeam?.players && (
-                <div className="mt-6 space-y-2">
-                  {blueTeam.players.map((player, index) => (
-                    <div key={index} className="text-xl text-blue-200/80 font-medium">
-                      {player}
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {/* Color Reference */}
-              {state.allianceBranding && state.bluePrimaryColor && (
-                <div className="mt-6 flex gap-2 justify-center">
+                <div className="mt-6">
                   <div 
-                    className="w-12 h-12 rounded border-2 border-white/50"
-                    style={{ backgroundColor: state.bluePrimaryColor }}
-                    title="Primary Color"
-                  />
-                  <div 
-                    className="w-12 h-12 rounded border-2 border-white/50"
-                    style={{ backgroundColor: state.blueSecondaryColor || state.bluePrimaryColor }}
-                    title="Secondary Color"
-                  />
+                    className="backdrop-blur-sm rounded-lg px-4 py-2 border"
+                    style={{
+                      backgroundColor: state.blueSecondaryColor ? `${state.blueSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
+                      borderColor: state.bluePrimaryColor ? `${state.bluePrimaryColor}40` : 'rgba(59, 130, 246, 0.2)'
+                    }}
+                  >
+                    {blueTeam.players.map((player, index) => (
+                      <div key={index} className="text-lg text-white font-medium">
+                        {player}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -329,6 +360,19 @@ export default function MatchPreview() {
           }
         }
 
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+
+        @keyframes float-subtle {
+          0% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-15px) rotate(2deg); }
+          50% { transform: translateY(-8px) rotate(0deg); }
+          75% { transform: translateY(-18px) rotate(-2deg); }
+          100% { transform: translateY(0px) rotate(0deg); }
+        }
+
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
@@ -359,6 +403,14 @@ export default function MatchPreview() {
 
         .animate-border-glow {
           animation: border-glow 2s ease-in-out infinite;
+        }
+
+        .animate-shimmer {
+          animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .animate-float-subtle {
+          animation: float-subtle 8s linear infinite;
         }
       `}</style>
     </>
