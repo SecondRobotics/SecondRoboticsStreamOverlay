@@ -58,7 +58,7 @@
     },
     {
       "id": "team8",
-      "name": "Dr Caspers Rabbit Show",
+      "name": "Rabbit Show",
       "primaryColor": "#1B61A8",
       "secondaryColor": "#A8611B",
       "players": ["Gavin2337", "NVIXTY", "EITAN"],
@@ -66,7 +66,7 @@
     },
     {
       "id": "team9",
-      "name": "Off-Season Demo Team 9999",
+      "name": "Team 9999",
       "primaryColor": "#FFFFFF",
       "secondaryColor": "#30b5ee",
       "players": ["Jello", "BobcaT320", "Evan"],
