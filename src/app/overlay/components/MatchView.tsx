@@ -2,6 +2,7 @@ import { OverlayState } from "../../lib/overlayState";
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { pointsDifferentialTracker } from "../../lib/pointsDifferentialTracker";
+import { Team, loadTeams } from "../../lib/teams";
 
 interface MatchViewProps {
   state: OverlayState;
@@ -19,6 +20,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
   const [showAutonomous, setShowAutonomous] = useState(false);
   const [gameState, setGameState] = useState<string>('');
   const [showTimer, setShowTimer] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
   // Memoize sorted OPR arrays to prevent unnecessary re-calculations
   const sortedRedOPR = useMemo(() => {
     return [...animatingOPR.red]
@@ -66,20 +68,18 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
     };
   }, [state.allianceBranding, state.redPrimaryColor, state.bluePrimaryColor, state.redSecondaryColor, state.blueSecondaryColor]);
 
-  // Function to get team logo path based on team name
-  const getTeamLogoPath = (teamName: string): string | null => {
-    if (!teamName) return null;
-    
-    // Map team names to logo file names
-    const logoMap: { [key: string]: string } = {
-      'PL:UNC': 'PL_UNC.PNG',
-      'Team Cooked': 'Team Cooked.png',
-      'Kryptonite': 'Kryptonite.png'
-    };
-    
-    const logoFileName = logoMap[teamName];
-    return logoFileName ? `/Team_Logos/${logoFileName}` : null;
-  };
+  // Get teams by ID
+  const redTeam = useMemo(() => {
+    const team = teams.find(t => t.id === state.redTeamId);
+    console.log('[MatchView] Red team lookup:', state.redTeamId, 'found:', team?.name, 'logo:', team?.logo);
+    return team;
+  }, [teams, state.redTeamId]);
+  
+  const blueTeam = useMemo(() => {
+    const team = teams.find(t => t.id === state.blueTeamId);
+    console.log('[MatchView] Blue team lookup:', state.blueTeamId, 'found:', team?.name, 'logo:', team?.logo);
+    return team;
+  }, [teams, state.blueTeamId]);
 
   // Parse time string to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
@@ -96,6 +96,13 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
     return 'text-white';
   }, [state.matchTime]);
 
+  // Load teams data
+  useEffect(() => {
+    loadTeams().then(loadedTeams => {
+      console.log('[MatchView] Loaded teams:', loadedTeams.map(t => ({ id: t.id, name: t.name, logo: t.logo })));
+      setTeams(loadedTeams);
+    });
+  }, []);
 
   useEffect(() => {
     // Entrance animation with delay
@@ -291,29 +298,41 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
             }}
           >
             {/* Team Logos */}
+            {console.log('[MatchView Render] Alliance branding:', state.allianceBranding)}
+            {console.log('[MatchView Render] Red team:', redTeam?.name, 'logo:', redTeam?.logo)}
+            {console.log('[MatchView Render] Blue team:', blueTeam?.name, 'logo:', blueTeam?.logo)}
             {state.allianceBranding && (
               <>
                 {/* Red Team Logo - Left Side */}
-                {getTeamLogoPath(state.redAllianceName) && (
+                {redTeam?.logo && (
                   <div className="absolute left-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
-                    <Image
-                      src={getTeamLogoPath(state.redAllianceName)!}
+                    {console.log('[MatchView] Rendering logo:', `/Team_Logos/${redTeam.logo}`)}
+                    <img
+                      src={`/Team_Logos/${redTeam.logo}`}
                       alt={`${state.redAllianceName} Logo`}
-                      fill
-                      style={{ objectFit: 'contain' }}
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'contain' 
+                      }}
                       className="drop-shadow-lg"
+                      onLoad={() => console.log('[MatchView] Logo loaded successfully:', redTeam.logo)}
+                      onError={() => console.log('[MatchView] Logo failed to load:', redTeam.logo)}
                     />
                   </div>
                 )}
                 
                 {/* Blue Team Logo - Right Side */}
-                {getTeamLogoPath(state.blueAllianceName) && (
+                {blueTeam?.logo && (
                   <div className="absolute right-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
-                    <Image
-                      src={getTeamLogoPath(state.blueAllianceName)!}
+                    <img
+                      src={`/Team_Logos/${blueTeam.logo}`}
                       alt={`${state.blueAllianceName} Logo`}
-                      fill
-                      style={{ objectFit: 'contain' }}
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'contain' 
+                      }}
                       className="drop-shadow-lg"
                     />
                   </div>

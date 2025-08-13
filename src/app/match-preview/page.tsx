@@ -29,20 +29,6 @@ export default function MatchPreview() {
     loadTeams().then(setTeams);
   }, []);
 
-  // Function to get team logo path based on team name
-  const getTeamLogoPath = (teamName: string): string | null => {
-    if (!teamName) return null;
-    
-    // Map team names to logo file names
-    const logoMap: { [key: string]: string } = {
-      'PL:UNC': 'PL_UNC.PNG',
-      'Team Cooked': 'Team Cooked.png',
-      'Kryptonite': 'Kryptonite.png'
-    };
-    
-    const logoFileName = logoMap[teamName];
-    return logoFileName ? `/Team_Logos/${logoFileName}` : null;
-  };
 
   // Find teams based on IDs
   const redTeam = useMemo(() => 
@@ -187,26 +173,26 @@ export default function MatchPreview() {
             
             <div className="text-center relative z-10">
               {/* Team Logo */}
-              {state.allianceBranding && getTeamLogoPath(state.redAllianceName) && (
-                <div className="mb-6 w-96 h-96 mx-auto relative">
+              {state.allianceBranding && redTeam?.logo && (
+                <div className="mb-6 w-80 h-80 mx-auto relative">
                   <Image
-                    src={getTeamLogoPath(state.redAllianceName)!}
+                    src={`/Team_Logos/${redTeam.logo}`}
                     alt={state.redAllianceName}
-                    width={384}
-                    height={384}
+                    width={320}
+                    height={320}
                     style={{ 
                       objectFit: 'contain',
                       filter: state.allianceBranding && state.redPrimaryColor
                         ? `drop-shadow(0 0 30px ${state.redPrimaryColor}80) drop-shadow(0 0 60px ${state.redSecondaryColor || state.redPrimaryColor}40)`
                         : undefined
                     }}
-                    className="w-96 h-96 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
+                    className="w-80 h-80 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
                   />
                 </div>
               )}
               
               <h2 
-                className="text-7xl font-black tracking-wider drop-shadow-2xl"
+                className="text-5xl font-black tracking-wider drop-shadow-2xl"
                 style={{
                   color: state.allianceBranding && state.redPrimaryColor ? 'white' : '#fca5a5',
                   textShadow: state.allianceBranding && state.redPrimaryColor 
@@ -221,7 +207,7 @@ export default function MatchPreview() {
               {state.allianceBranding && redTeam?.players && (
                 <div className="mt-6">
                   <div 
-                    className="backdrop-blur-sm rounded-lg px-4 py-2 border"
+                    className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
                     style={{
                       backgroundColor: state.redSecondaryColor ? `${state.redSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
                       borderColor: state.redPrimaryColor ? `${state.redPrimaryColor}40` : 'rgba(239, 68, 68, 0.2)'
@@ -287,26 +273,26 @@ export default function MatchPreview() {
             
             <div className="text-center relative z-10">
               {/* Team Logo */}
-              {state.allianceBranding && getTeamLogoPath(state.blueAllianceName) && (
-                <div className="mb-6 w-96 h-96 mx-auto relative">
+              {state.allianceBranding && blueTeam?.logo && (
+                <div className="mb-6 w-80 h-80 mx-auto relative">
                   <Image
-                    src={getTeamLogoPath(state.blueAllianceName)!}
+                    src={`/Team_Logos/${blueTeam.logo}`}
                     alt={state.blueAllianceName}
-                    width={384}
-                    height={384}
+                    width={320}
+                    height={320}
                     style={{ 
                       objectFit: 'contain',
                       filter: state.allianceBranding && state.bluePrimaryColor
                         ? `drop-shadow(0 0 30px ${state.bluePrimaryColor}80) drop-shadow(0 0 60px ${state.blueSecondaryColor || state.bluePrimaryColor}40)`
                         : undefined
                     }}
-                    className="w-96 h-96 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
+                    className="w-80 h-80 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
                   />
                 </div>
               )}
               
               <h2 
-                className="text-7xl font-black tracking-wider drop-shadow-2xl"
+                className="text-5xl font-black tracking-wider drop-shadow-2xl"
                 style={{
                   color: state.allianceBranding && state.bluePrimaryColor ? 'white' : '#93c5fd',
                   textShadow: state.allianceBranding && state.bluePrimaryColor 
@@ -321,7 +307,7 @@ export default function MatchPreview() {
               {state.allianceBranding && blueTeam?.players && (
                 <div className="mt-6">
                   <div 
-                    className="backdrop-blur-sm rounded-lg px-4 py-2 border"
+                    className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
                     style={{
                       backgroundColor: state.blueSecondaryColor ? `${state.blueSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
                       borderColor: state.bluePrimaryColor ? `${state.bluePrimaryColor}40` : 'rgba(59, 130, 246, 0.2)'

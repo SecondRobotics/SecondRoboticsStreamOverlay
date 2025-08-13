@@ -5,56 +5,72 @@
         "name": "PL:UNC",
         "primaryColor": "#ffde59",
         "secondaryColor": "#5170ff",
-        "players": ["xChen", "JordanS", "TaylorMtz"]
+        "players": ["Kaiju", "Noah", "JP"],
+        "logo": "PL_UNC.PNG"
     },
     {
         "id": "team2",
         "name": "Team Cooked",
         "primaryColor": "#d8031c",
         "secondaryColor": "#6497bf",
-        "players": ["Lethimcook", "egged", "rippo"]
+        "players": ["Cash", "Celesteiscool", "supergoobejr"],
+        "logo": "Team Cooked.png"
     },
     {
         "id": "team3",
         "name": "Kryptonite",
         "primaryColor": "#108B16",
         "secondaryColor": "#0B0E02",
-        "players": ["Totally a Meme", "BlakeR", "WatergamerSquad"]
+        "players": ["Abyss", "eback0", "EEMAN"],
+        "logo": "Kryptonite.png"
     },
     {
       "id": "team4",
-      "name": "Steel Warriors",
-      "primaryColor": "#5C6BC0",
-      "secondaryColor": "#9E9E9E",
-      "players": ["DrewA", "SageP", "QuinnM"]
+      "name": "Peak",
+      "primaryColor": "#0c343d",
+      "secondaryColor": "#cccccc",
+      "players": ["Parin", "Eric9033", "Alex1629"],
+      "logo": "Peak.png"
     },
     {
       "id": "team5",
-      "name": "Quantum Force",
-      "primaryColor": "#00BCD4",
-      "secondaryColor": "#8BC34A",
-      "players": ["RowanG", "SkylerB", "PhoenixW"]
+      "name": "Checkmate",
+      "primaryColor": "#519DA2",
+      "secondaryColor": "#1E2425",
+      "players": ["Logan", "Casey422", "C4678"],
+      "logo": "Checkmate.png"
     },
     {
       "id": "team6",
-      "name": "Neon Runners",
-      "primaryColor": "#E91E63",
-      "secondaryColor": "#FFC107",
-      "players": ["HunterT", "LaneJ", "EmeryC"]
+      "name": "Riptide",
+      "primaryColor": "#055791",
+      "secondaryColor": "#002648",
+      "players": ["Lumpy7457", "RJ494", "aboyman55"],
+      "logo": "Riptide.png"
     },
     {
       "id": "team7",
-      "name": "Shadow Ops",
-      "primaryColor": "#424242",
-      "secondaryColor": "#616161",
-      "players": ["FinleyM", "KaiW", "RemyA"]
+      "name": "The OGs",
+      "primaryColor": "#4b0600",
+      "secondaryColor": "#d8430a",
+      "players": ["Adam", "dak346", "Darre7890"],
+      "logo": "The OGs.png"
     },
     {
       "id": "team8",
-      "name": "Voltage Strike",
-      "primaryColor": "#FFEB3B",
-      "secondaryColor": "#FF5722",
-      "players": ["NovaG", "JadenK", "EllisC"]
+      "name": "Dr Caspers Rabbit Show",
+      "primaryColor": "#1B61A8",
+      "secondaryColor": "#A8611B",
+      "players": ["Gavin2337", "NVIXTY", "EITAN"],
+      "logo": "Dr Caspers Rabbit Show.jpg"
+    },
+    {
+      "id": "team9",
+      "name": "Off-Season Demo Team 9999",
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#30b5ee",
+      "players": ["Jello", "BobcaT320", "Evan"],
+      "logo": "Off-Season Demo Team 9999.png"
     }
   ]
 }

@@ -15,6 +15,19 @@ export interface OverlayState {
   redOPR: { username: string; score: number }[];
   blueOPR: { username: string; score: number }[];
   lastUpdated: number;
+  seriesEnabled: boolean;
+  seriesType: 'bo3' | 'bo5' | 'bo7';
+  redAllianceName: string;
+  blueAllianceName: string;
+  redSeriesScore: number;
+  blueSeriesScore: number;
+  redTeamId?: string;
+  blueTeamId?: string;
+  redPrimaryColor?: string;
+  redSecondaryColor?: string;
+  bluePrimaryColor?: string;
+  blueSecondaryColor?: string;
+  allianceBranding: boolean;
 }
 
 let overlayState: OverlayState = {
@@ -28,6 +41,13 @@ let overlayState: OverlayState = {
   redOPR: [],
   blueOPR: [],
   lastUpdated: Date.now(),
+  seriesEnabled: false,
+  seriesType: 'bo3',
+  redAllianceName: 'Red Alliance',
+  blueAllianceName: 'Blue Alliance',
+  redSeriesScore: 0,
+  blueSeriesScore: 0,
+  allianceBranding: false,
 };
 
 const readScore = (filePath: string): number => {
