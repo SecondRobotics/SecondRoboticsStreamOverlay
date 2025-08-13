@@ -69,17 +69,15 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
   }, [state.allianceBranding, state.redPrimaryColor, state.bluePrimaryColor, state.redSecondaryColor, state.blueSecondaryColor]);
 
   // Get teams by ID
-  const redTeam = useMemo(() => {
-    const team = teams.find(t => t.id === state.redTeamId);
-    console.log('[MatchView] Red team lookup:', state.redTeamId, 'found:', team?.name, 'logo:', team?.logo);
-    return team;
-  }, [teams, state.redTeamId]);
+  const redTeam = useMemo(() => 
+    teams.find(t => t.id === state.redTeamId),
+    [teams, state.redTeamId]
+  );
   
-  const blueTeam = useMemo(() => {
-    const team = teams.find(t => t.id === state.blueTeamId);
-    console.log('[MatchView] Blue team lookup:', state.blueTeamId, 'found:', team?.name, 'logo:', team?.logo);
-    return team;
-  }, [teams, state.blueTeamId]);
+  const blueTeam = useMemo(() => 
+    teams.find(t => t.id === state.blueTeamId),
+    [teams, state.blueTeamId]
+  );
 
   // Parse time string to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
@@ -98,10 +96,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
 
   // Load teams data
   useEffect(() => {
-    loadTeams().then(loadedTeams => {
-      console.log('[MatchView] Loaded teams:', loadedTeams.map(t => ({ id: t.id, name: t.name, logo: t.logo })));
-      setTeams(loadedTeams);
-    });
+    loadTeams().then(setTeams);
   }, []);
 
   useEffect(() => {
@@ -298,15 +293,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
             }}
           >
             {/* Team Logos */}
-            {console.log('[MatchView Render] Alliance branding:', state.allianceBranding)}
-            {console.log('[MatchView Render] Red team:', redTeam?.name, 'logo:', redTeam?.logo)}
-            {console.log('[MatchView Render] Blue team:', blueTeam?.name, 'logo:', blueTeam?.logo)}
             {state.allianceBranding && (
               <>
                 {/* Red Team Logo - Left Side */}
                 {redTeam?.logo && (
                   <div className="absolute left-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
-                    {console.log('[MatchView] Rendering logo:', `/Team_Logos/${redTeam.logo}`)}
                     <img
                       src={`/Team_Logos/${redTeam.logo}`}
                       alt={`${state.redAllianceName} Logo`}
@@ -316,8 +307,6 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                         objectFit: 'contain' 
                       }}
                       className="drop-shadow-lg"
-                      onLoad={() => console.log('[MatchView] Logo loaded successfully:', redTeam.logo)}
-                      onError={() => console.log('[MatchView] Logo failed to load:', redTeam.logo)}
                     />
                   </div>
                 )}
