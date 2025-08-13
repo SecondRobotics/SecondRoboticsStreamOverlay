@@ -60,7 +60,6 @@ export default function MatchPreview() {
       const boxStyle: React.CSSProperties = {};
       if (isWon && useCustomColor) {
         boxStyle.backgroundColor = customColor;
-        boxStyle.boxShadow = `0 10px 15px -3px ${customColor}80`;
       }
       
       boxes.push(
@@ -70,14 +69,21 @@ export default function MatchPreview() {
             !useCustomColor ? (
               isWon 
                 ? color === 'red' 
-                  ? 'bg-red-600 shadow-lg shadow-red-600/50' 
-                  : 'bg-blue-600 shadow-lg shadow-blue-600/50'
-                : 'bg-gray-700 opacity-50'
+                  ? 'bg-red-600' 
+                  : 'bg-blue-600'
+                : 'bg-white opacity-30'
             ) : (
-              isWon ? '' : 'bg-gray-700 opacity-50'
+              isWon ? '' : 'bg-white opacity-30'
             )
           }`}
-          style={boxStyle}
+          style={{
+            ...boxStyle,
+            boxShadow: isWon 
+              ? useCustomColor && customColor
+                ? `0 0 30px ${customColor}, 0 0 60px ${customColor}99`
+                : (color === 'red' ? '0 0 30px rgba(239, 68, 68, 1), 0 0 60px rgba(239, 68, 68, 0.6)' : '0 0 30px rgba(59, 130, 246, 1), 0 0 60px rgba(59, 130, 246, 0.6)')
+              : '0 0 20px rgba(255, 255, 255, 0.4)'
+          }}
         />
       );
     }
@@ -226,7 +232,7 @@ export default function MatchPreview() {
             {/* Red Series Indicator - Bottom */}
             {state.seriesEnabled && (
               <div className="absolute bottom-8 left-8 right-8">
-                <div className="bg-black/60 backdrop-blur-sm border border-red-500/30 rounded-lg p-4">
+                <div className="bg-black/90 backdrop-blur-md border-2 border-red-500/50 rounded-lg p-4 shadow-xl">
                   <div className="flex space-x-3 justify-center">
                     {renderSeriesBoxes(state.redSeriesScore, 'red')}
                   </div>
@@ -326,7 +332,7 @@ export default function MatchPreview() {
             {/* Blue Series Indicator - Bottom */}
             {state.seriesEnabled && (
               <div className="absolute bottom-8 left-8 right-8">
-                <div className="bg-black/60 backdrop-blur-sm border border-blue-500/30 rounded-lg p-4">
+                <div className="bg-black/90 backdrop-blur-md border-2 border-blue-500/50 rounded-lg p-4 shadow-xl">
                   <div className="flex space-x-3 justify-center">
                     {renderSeriesBoxes(state.blueSeriesScore, 'blue')}
                   </div>

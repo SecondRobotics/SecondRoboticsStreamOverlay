@@ -50,21 +50,22 @@ export default function SeriesIndicator({
       const boxStyle: React.CSSProperties = {};
       if (isWon && useCustomColor) {
         boxStyle.backgroundColor = customColor;
-        boxStyle.boxShadow = `0 10px 15px -3px ${customColor}80`;
+        boxStyle.boxShadow = `0 10px 15px -3px ${customColor}80, 0 0 0 1px rgba(255,255,255,0.2)`;
+        boxStyle.border = '1px solid rgba(255,255,255,0.3)';
       }
       
       boxes.push(
         <div
           key={i}
-          className={`w-10 h-3 rounded transition-all duration-300 ${
+          className={`w-10 h-3 rounded transition-all duration-300 border ${
             !useCustomColor ? (
               isWon 
                 ? color === 'red' 
-                  ? 'bg-red-600 shadow-lg shadow-red-600/50' 
-                  : 'bg-blue-600 shadow-lg shadow-blue-600/50'
-                : 'bg-gray-700 opacity-50'
+                  ? 'bg-red-600 shadow-lg shadow-red-600/50 border-white/30' 
+                  : 'bg-blue-600 shadow-lg shadow-blue-600/50 border-white/30'
+                : 'bg-gray-800 opacity-60 border-gray-600'
             ) : (
-              isWon ? '' : 'bg-gray-700 opacity-50'
+              isWon ? '' : 'bg-gray-800 opacity-60 border-gray-600'
             )
           }`}
           style={boxStyle}
@@ -75,12 +76,15 @@ export default function SeriesIndicator({
   };
 
   return (
-    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-sm rounded-lg p-6 shadow-2xl">
+    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-md rounded-lg p-6 shadow-2xl border border-white/20">
       <div className="flex items-center justify-center">
         <div className="flex flex-col items-center space-y-3 w-48">
           <span 
-            className="font-bold text-sm uppercase tracking-wider text-center"
-            style={{ color: colorConfig.redTextColor }}
+            className="font-bold text-sm uppercase tracking-wider text-center drop-shadow-lg"
+            style={{ 
+              color: colorConfig.redTextColor,
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+            }}
           >
             {redAllianceName}
           </span>
@@ -89,14 +93,17 @@ export default function SeriesIndicator({
           </div>
         </div>
         
-        <div className="text-white text-xl font-bold mx-16">
+        <div className="text-white text-xl font-bold mx-16 drop-shadow-lg" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
           {validSeriesType.toUpperCase()}
         </div>
         
         <div className="flex flex-col items-center space-y-3 w-48">
           <span 
-            className="font-bold text-sm uppercase tracking-wider text-center"
-            style={{ color: colorConfig.blueTextColor }}
+            className="font-bold text-sm uppercase tracking-wider text-center drop-shadow-lg"
+            style={{ 
+              color: colorConfig.blueTextColor,
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+            }}
           >
             {blueAllianceName}
           </span>
