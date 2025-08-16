@@ -295,9 +295,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
             {/* Team Logos */}
             {state.allianceBranding && (
               <>
-                {/* Red Team Logo - Left Side */}
+                {/* Red Team Logo - Left Side (or Right if flipped) */}
                 {redTeam?.logo && (
-                  <div className="absolute left-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
+                  <div className={`absolute top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden ${
+                    state.flippedTeams ? 'right-0' : 'left-0'
+                  }`}>
                     <img
                       src={`/Team_Logos/${redTeam.logo}`}
                       alt={`${state.redAllianceName} Logo`}
@@ -311,9 +313,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                   </div>
                 )}
                 
-                {/* Blue Team Logo - Right Side */}
+                {/* Blue Team Logo - Right Side (or Left if flipped) */}
                 {blueTeam?.logo && (
-                  <div className="absolute right-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
+                  <div className={`absolute top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden ${
+                    state.flippedTeams ? 'left-0' : 'right-0'
+                  }`}>
                     <img
                       src={`/Team_Logos/${blueTeam.logo}`}
                       alt={`${state.blueAllianceName} Logo`}
@@ -340,11 +344,15 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
               />
             </div>
             
-            <div className="flex items-center justify-center">
-              {/* Left side - Red Alliance */}
+            <div className="flex items-center justify-center" style={{
+              transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+            }}>
+              {/* Left side - Red Alliance (or Blue if flipped) */}
               <div className="flex items-center justify-end gap-4 flex-1">
                 {/* Red Alliance OPR */}
-                <div className="text-sm text-red-100 opacity-90 space-y-2 text-right">
+                <div className="text-sm text-red-100 opacity-90 space-y-2 text-right" style={{
+                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                }}>
                   {sortedRedOPR.map((player, index) => (
                     <div 
                       key={player.username || `red-player-${index}`} 
@@ -362,24 +370,30 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                 <div className="bg-red-600/80 rounded-lg p-8 text-center min-w-[180px] animate-red-glow mr-16">
                   <div className={`text-6xl font-mono font-bold text-white ${
                     scoreChanged.red ? 'animate-score-text-change' : ''
-                  }`}>{animatingScores.red}</div>
+                  }`} style={{
+                    transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                  }}>{animatingScores.red}</div>
                 </div>
               </div>
               
               {/* Center logo space */}
               <div className="w-24"></div>
               
-              {/* Right side - Blue Alliance */}
+              {/* Right side - Blue Alliance (or Red if flipped) */}
               <div className="flex items-center justify-start gap-4 flex-1">
                 {/* Blue Score */}
                 <div className="bg-blue-600/80 rounded-lg p-8 text-center min-w-[180px] animate-blue-glow ml-16">
                   <div className={`text-6xl font-mono font-bold text-white ${
                     scoreChanged.blue ? 'animate-score-text-change' : ''
-                  }`}>{animatingScores.blue}</div>
+                  }`} style={{
+                    transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                  }}>{animatingScores.blue}</div>
                 </div>
                 
                 {/* Blue Alliance OPR */}
-                <div className="text-sm text-blue-100 opacity-90 space-y-2 text-left">
+                <div className="text-sm text-blue-100 opacity-90 space-y-2 text-left" style={{
+                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                }}>
                   {sortedBlueOPR.map((player, index) => (
                     <div 
                       key={player.username || `blue-player-${index}`} 

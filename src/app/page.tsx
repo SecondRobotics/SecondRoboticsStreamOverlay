@@ -53,11 +53,11 @@ export default function Dashboard() {
     return cleanup;
   }, [isEditing]);
 
-  const copyOverlayUrl = async () => {
-    const url = `${window.location.origin}/overlay`;
+  const copyOverlayUrl = async (path = '/overlay') => {
+    const url = `${window.location.origin}${path}`;
     setOverlayUrl(url);
     await navigator.clipboard.writeText(url);
-    alert("Overlay URL copied to clipboard!");
+    alert("URL copied to clipboard!");
   };
 
   const copyMatchPreviewUrl = async () => {
@@ -66,12 +66,6 @@ export default function Dashboard() {
     alert("Match Preview URL copied to clipboard!");
   };
 
-  const setOverlayMode = async (mode: OverlayState['mode']) => {
-    // Update local state immediately for instant UI feedback
-    setLocalOverlayState(prev => ({ ...prev, mode }));
-    // Then update server state
-    await setOverlayState({ mode });
-  };
 
   const updateOverlayData = async (field: string, value: string | number) => {
     // Update local state immediately for instant UI feedback
@@ -100,15 +94,45 @@ export default function Dashboard() {
             <div className="space-y-3">
               <div className="flex gap-2">
                 <Link
-                  href="/overlay"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                  href="/overlay/starting-soon"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
                 >
-                  View Overlay
+                  Starting Soon
                 </Link>
                 <button
-                  onClick={copyOverlayUrl}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
-                  title="Copy Overlay URL"
+                  onClick={() => copyOverlayUrl('/overlay/starting-soon')}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                  title="Copy Starting Soon URL"
+                >
+                  📋
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href="/overlay/match-view"
+                  className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                >
+                  Match View
+                </Link>
+                <button
+                  onClick={() => copyOverlayUrl('/overlay/match-view')}
+                  className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                  title="Copy Match View URL"
+                >
+                  📋
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <Link
+                  href="/overlay/results"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                >
+                  Results
+                </Link>
+                <button
+                  onClick={() => copyOverlayUrl('/overlay/results')}
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                  title="Copy Results URL"
                 >
                   📋
                 </button>
@@ -133,47 +157,6 @@ export default function Dashboard() {
                   {overlayUrl}
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Overlay Mode
-            </h2>
-            <div className="space-y-3">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Current: <span className="font-medium capitalize">{overlayState.mode.replace('-', ' ')}</span>
-              </div>
-              <button
-                onClick={() => setOverlayMode('starting-soon')}
-                className={`w-full font-medium py-2 px-4 rounded-md transition-colors ${
-                  overlayState.mode === 'starting-soon' 
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                    : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white'
-                }`}
-              >
-                Starting Soon
-              </button>
-              <button
-                onClick={() => setOverlayMode('match')}
-                className={`w-full font-medium py-2 px-4 rounded-md transition-colors ${
-                  overlayState.mode === 'match' 
-                    ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                    : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white'
-                }`}
-              >
-                Match View
-              </button>
-              <button
-                onClick={() => setOverlayMode('results')}
-                className={`w-full font-medium py-2 px-4 rounded-md transition-colors ${
-                  overlayState.mode === 'results' 
-                    ? 'bg-green-600 hover:bg-green-700 text-white' 
-                    : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white'
-                }`}
-              >
-                Results
-              </button>
             </div>
           </div>
 
@@ -214,6 +197,56 @@ export default function Dashboard() {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
+              </div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="flippedTeams" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Flip Team Sides
+                </label>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={overlayState.flippedTeams}
+                  onClick={() => {
+                    const flipped = !overlayState.flippedTeams;
+                    setLocalOverlayState(prev => ({ ...prev, flippedTeams: flipped }));
+                    setOverlayState({ flippedTeams: flipped });
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    overlayState.flippedTeams ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                  }`}
+                >
+                  <span className="sr-only">Flip Team Sides</span>
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      overlayState.flippedTeams ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="allianceBranding" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Alliance Branding
+                </label>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={overlayState.allianceBranding}
+                  onClick={() => {
+                    const enabled = !overlayState.allianceBranding;
+                    setLocalOverlayState(prev => ({ ...prev, allianceBranding: enabled }));
+                    setOverlayState({ allianceBranding: enabled });
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    overlayState.allianceBranding ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                  }`}
+                >
+                  <span className="sr-only">Enable Alliance Branding</span>
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      overlayState.allianceBranding ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Scores are automatically read from Score_R.txt and Score_B.txt files in the game file location.
@@ -282,31 +315,7 @@ export default function Dashboard() {
               
               {overlayState.seriesEnabled && (
                 <>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="allianceBranding" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Alliance Branding
-                    </label>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={overlayState.allianceBranding}
-                      onClick={() => {
-                        const enabled = !overlayState.allianceBranding;
-                        setLocalOverlayState(prev => ({ ...prev, allianceBranding: enabled }));
-                        setOverlayState({ allianceBranding: enabled });
-                      }}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        overlayState.allianceBranding ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
-                      }`}
-                    >
-                      <span className="sr-only">Enable Alliance Branding</span>
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          overlayState.allianceBranding ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
+                  
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

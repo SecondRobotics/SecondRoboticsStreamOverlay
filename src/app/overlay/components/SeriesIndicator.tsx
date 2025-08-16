@@ -11,6 +11,7 @@ interface SeriesIndicatorProps {
   redSecondaryColor?: string;
   bluePrimaryColor?: string;
   blueSecondaryColor?: string;
+  flippedTeams?: boolean;
 }
 
 export default function SeriesIndicator({ 
@@ -23,7 +24,8 @@ export default function SeriesIndicator({
   redPrimaryColor,
   redSecondaryColor,
   bluePrimaryColor,
-  blueSecondaryColor
+  blueSecondaryColor,
+  flippedTeams = false
 }: SeriesIndicatorProps) {
   const validSeriesType = seriesType || 'bo3';
   const totalGames = validSeriesType === 'bo3' ? 3 : validSeriesType === 'bo5' ? 5 : 7;
@@ -77,13 +79,16 @@ export default function SeriesIndicator({
 
   return (
     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-md rounded-lg p-6 shadow-2xl border border-white/20">
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center" style={{
+        transform: flippedTeams ? 'scaleX(-1)' : 'none'
+      }}>
         <div className="flex flex-col items-center space-y-3 w-48">
           <span 
             className="font-bold text-sm uppercase tracking-wider text-center drop-shadow-lg"
             style={{ 
               color: colorConfig.redTextColor,
-              textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+              transform: flippedTeams ? 'scaleX(-1)' : 'none'
             }}
           >
             {redAllianceName}
@@ -93,7 +98,10 @@ export default function SeriesIndicator({
           </div>
         </div>
         
-        <div className="text-white text-xl font-bold mx-16 drop-shadow-lg" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+        <div className="text-white text-xl font-bold mx-16 drop-shadow-lg" style={{ 
+          textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+          transform: flippedTeams ? 'scaleX(-1)' : 'none'
+        }}>
           {validSeriesType.toUpperCase()}
         </div>
         
@@ -102,7 +110,8 @@ export default function SeriesIndicator({
             className="font-bold text-sm uppercase tracking-wider text-center drop-shadow-lg"
             style={{ 
               color: colorConfig.blueTextColor,
-              textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+              transform: flippedTeams ? 'scaleX(-1)' : 'none'
             }}
           >
             {blueAllianceName}

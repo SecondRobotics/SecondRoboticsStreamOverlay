@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getOverlayState, useOverlayState, OverlayState } from "../lib/overlayState";
-import MatchView from "./components/MatchView";
-import StartingSoon from "./components/StartingSoon";
-import Results from "./components/Results";
-import SeriesIndicator from "./components/SeriesIndicator";
+import { getOverlayState, useOverlayState, OverlayState } from "../../lib/overlayState";
+import Results from "../components/Results";
+import SeriesIndicator from "../components/SeriesIndicator";
 
-export default function Overlay() {
+export default function ResultsOverlay() {
   const [currentTime, setCurrentTime] = useState("");
   const [overlayState, setLocalOverlayState] = useState<OverlayState>({
-    mode: 'starting-soon',
+    mode: 'results',
     matchTitle: 'FRC Stream Overlay',
     matchTime: '00:00',
     gameFileLocation: '',
@@ -57,18 +55,6 @@ export default function Overlay() {
     };
   }, []);
 
-  const renderOverlayContent = () => {
-    switch (overlayState.mode) {
-      case 'match':
-        return <MatchView state={overlayState} currentTime={currentTime} />;
-      case 'results':
-        return <Results state={overlayState} currentTime={currentTime} />;
-      case 'starting-soon':
-      default:
-        return <StartingSoon state={overlayState} currentTime={currentTime} />;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-transparent text-white relative overflow-hidden">
       {overlayState.seriesEnabled && (
@@ -83,10 +69,9 @@ export default function Overlay() {
           redSecondaryColor={overlayState.redSecondaryColor}
           bluePrimaryColor={overlayState.bluePrimaryColor}
           blueSecondaryColor={overlayState.blueSecondaryColor}
-          flippedTeams={overlayState.flippedTeams}
         />
       )}
-      {renderOverlayContent()}
+      <Results state={overlayState} currentTime={currentTime} />
     </div>
   );
 }

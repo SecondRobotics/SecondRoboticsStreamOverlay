@@ -147,8 +147,10 @@ export default function MatchPreview() {
         </div>
 
         {/* VS Layout */}
-        <div className="flex-1 flex relative overflow-hidden">
-          {/* Red Alliance */}
+        <div className="flex-1 flex relative overflow-hidden" style={{
+          transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+        }}>
+          {/* Red Alliance (or Blue if flipped) */}
           <div 
             className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow border-r border-white/10"
             style={{
@@ -203,7 +205,8 @@ export default function MatchPreview() {
                   color: state.allianceBranding && state.redPrimaryColor ? 'white' : '#fca5a5',
                   textShadow: state.allianceBranding && state.redPrimaryColor 
                     ? `0 0 40px ${state.redPrimaryColor}, 0 0 80px ${state.redSecondaryColor || state.redPrimaryColor}`
-                    : undefined
+                    : undefined,
+                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
                 }}
               >
                 {state.seriesEnabled ? state.redAllianceName : 'RED'}
@@ -216,7 +219,8 @@ export default function MatchPreview() {
                     className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
                     style={{
                       backgroundColor: state.redSecondaryColor ? `${state.redSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
-                      borderColor: state.redPrimaryColor ? `${state.redPrimaryColor}40` : 'rgba(239, 68, 68, 0.2)'
+                      borderColor: state.redPrimaryColor ? `${state.redPrimaryColor}40` : 'rgba(239, 68, 68, 0.2)',
+                      transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
                     }}
                   >
                     {redTeam.players.map((player, index) => (
@@ -244,7 +248,9 @@ export default function MatchPreview() {
           {/* VS Separator */}
           <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
             <div className="bg-black/60 backdrop-blur-lg border border-white/30 rounded-full w-24 h-24 flex items-center justify-center shadow-2xl">
-              <span className="text-white text-2xl font-black tracking-widest">VS</span>
+              <span className="text-white text-2xl font-black tracking-widest" style={{
+                transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+              }}>VS</span>
             </div>
           </div>
 
@@ -303,7 +309,8 @@ export default function MatchPreview() {
                   color: state.allianceBranding && state.bluePrimaryColor ? 'white' : '#93c5fd',
                   textShadow: state.allianceBranding && state.bluePrimaryColor 
                     ? `0 0 40px ${state.bluePrimaryColor}, 0 0 80px ${state.blueSecondaryColor || state.bluePrimaryColor}`
-                    : undefined
+                    : undefined,
+                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
                 }}
               >
                 {state.seriesEnabled ? state.blueAllianceName : 'BLUE'}
@@ -316,7 +323,8 @@ export default function MatchPreview() {
                     className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
                     style={{
                       backgroundColor: state.blueSecondaryColor ? `${state.blueSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
-                      borderColor: state.bluePrimaryColor ? `${state.bluePrimaryColor}40` : 'rgba(59, 130, 246, 0.2)'
+                      borderColor: state.bluePrimaryColor ? `${state.bluePrimaryColor}40` : 'rgba(59, 130, 246, 0.2)',
+                      transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
                     }}
                   >
                     {blueTeam.players.map((player, index) => (
