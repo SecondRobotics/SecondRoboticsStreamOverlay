@@ -41,6 +41,20 @@ export default function MatchPreview() {
     [teams, state?.blueTeamId]
   );
 
+  // Swap team data when flipped
+  const leftTeam = state?.flippedTeams ? blueTeam : redTeam;
+  const rightTeam = state?.flippedTeams ? redTeam : blueTeam;
+  const leftAllianceName = state?.flippedTeams ? state?.blueAllianceName : state?.redAllianceName;
+  const rightAllianceName = state?.flippedTeams ? state?.redAllianceName : state?.blueAllianceName;
+  const leftSeriesScore = state?.flippedTeams ? state?.blueSeriesScore : state?.redSeriesScore;
+  const rightSeriesScore = state?.flippedTeams ? state?.redSeriesScore : state?.blueSeriesScore;
+  const leftPrimaryColor = state?.flippedTeams ? state?.bluePrimaryColor : state?.redPrimaryColor;
+  const rightPrimaryColor = state?.flippedTeams ? state?.redPrimaryColor : state?.bluePrimaryColor;
+  const leftSecondaryColor = state?.flippedTeams ? state?.blueSecondaryColor : state?.redSecondaryColor;
+  const rightSecondaryColor = state?.flippedTeams ? state?.redSecondaryColor : state?.blueSecondaryColor;
+  const leftIsRed = !state?.flippedTeams;
+  const rightIsRed = !!state?.flippedTeams;
+
 
   const renderSeriesBoxes = (score: number, color: 'red' | 'blue') => {
     if (!state?.seriesEnabled) return null;
@@ -147,51 +161,59 @@ export default function MatchPreview() {
         </div>
 
         {/* VS Layout */}
-        <div className="flex-1 flex relative overflow-hidden" style={{
-          transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-        }}>
-          {/* Red Alliance (or Blue if flipped) */}
+        <div className="flex-1 flex relative overflow-hidden">
+          {/* Left Alliance */}
           <div 
             className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow border-r border-white/10"
             style={{
-              background: state.allianceBranding && state.redPrimaryColor 
-                ? `linear-gradient(to right, ${state.redPrimaryColor}, ${state.redSecondaryColor || state.redPrimaryColor})`
-                : 'linear-gradient(to right, rgba(220, 38, 38, 0.3), rgba(239, 68, 68, 0.2))',
-              boxShadow: state.allianceBranding && state.redPrimaryColor
-                ? `inset 0 0 60px ${state.redPrimaryColor}20, inset -4px 0 20px ${state.redPrimaryColor}30`
-                : 'inset 0 0 60px rgba(220, 38, 38, 0.1), inset -4px 0 20px rgba(239, 68, 68, 0.2)'
+              background: state.allianceBranding && leftPrimaryColor 
+                ? `linear-gradient(to right, ${leftPrimaryColor}, ${leftSecondaryColor || leftPrimaryColor})`
+                : leftIsRed 
+                  ? 'linear-gradient(to right, rgba(220, 38, 38, 0.3), rgba(239, 68, 68, 0.2))'
+                  : 'linear-gradient(to right, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2))',
+              boxShadow: state.allianceBranding && leftPrimaryColor
+                ? `inset 0 0 60px ${leftPrimaryColor}20, inset -4px 0 20px ${leftPrimaryColor}30`
+                : leftIsRed
+                  ? 'inset 0 0 60px rgba(220, 38, 38, 0.1), inset -4px 0 20px rgba(239, 68, 68, 0.2)'
+                  : 'inset 0 0 60px rgba(37, 99, 235, 0.1), inset -4px 0 20px rgba(59, 130, 246, 0.2)'
             }}
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 animate-float" style={{
-              background: state.allianceBranding && state.redSecondaryColor
-                ? `radial-gradient(circle at 30% 50%, ${state.redSecondaryColor}10, transparent)`
-                : 'radial-gradient(circle at 30% 50%, rgba(239, 68, 68, 0.05), transparent)'
+              background: state.allianceBranding && leftSecondaryColor
+                ? `radial-gradient(circle at 30% 50%, ${leftSecondaryColor}10, transparent)`
+                : leftIsRed
+                  ? 'radial-gradient(circle at 30% 50%, rgba(239, 68, 68, 0.05), transparent)'
+                  : 'radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.05), transparent)'
             }}></div>
             <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full blur-xl animate-float-delayed" style={{
-              backgroundColor: state.allianceBranding && state.redPrimaryColor
-                ? `${state.redPrimaryColor}15`
-                : 'rgba(239, 68, 68, 0.1)'
+              backgroundColor: state.allianceBranding && leftPrimaryColor
+                ? `${leftPrimaryColor}15`
+                : leftIsRed
+                  ? 'rgba(239, 68, 68, 0.1)'
+                  : 'rgba(59, 130, 246, 0.1)'
             }}></div>
             <div className="absolute bottom-1/3 right-1/4 w-24 h-24 rounded-full blur-lg animate-bounce-slow" style={{
-              backgroundColor: state.allianceBranding && state.redSecondaryColor
-                ? `${state.redSecondaryColor}15`
-                : 'rgba(248, 113, 113, 0.1)'
+              backgroundColor: state.allianceBranding && leftSecondaryColor
+                ? `${leftSecondaryColor}15`
+                : leftIsRed
+                  ? 'rgba(248, 113, 113, 0.1)'
+                  : 'rgba(96, 165, 250, 0.1)'
             }}></div>
             
             <div className="text-center relative z-10">
               {/* Team Logo */}
-              {state.allianceBranding && redTeam?.logo && (
+              {state.allianceBranding && leftTeam?.logo && (
                 <div className="mb-6 w-80 h-80 mx-auto relative">
                   <Image
-                    src={`/Team_Logos/${redTeam.logo}`}
-                    alt={state.redAllianceName}
+                    src={`/Team_Logos/${leftTeam.logo}`}
+                    alt={leftAllianceName}
                     width={320}
                     height={320}
                     style={{ 
                       objectFit: 'contain',
-                      filter: state.allianceBranding && state.redPrimaryColor
-                        ? `drop-shadow(0 0 30px ${state.redPrimaryColor}80) drop-shadow(0 0 60px ${state.redSecondaryColor || state.redPrimaryColor}40)`
+                      filter: state.allianceBranding && leftPrimaryColor
+                        ? `drop-shadow(0 0 30px ${leftPrimaryColor}80) drop-shadow(0 0 60px ${leftSecondaryColor || leftPrimaryColor}40)`
                         : undefined
                     }}
                     className="w-80 h-80 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
@@ -202,28 +224,26 @@ export default function MatchPreview() {
               <h2 
                 className="text-5xl font-black tracking-wider drop-shadow-2xl"
                 style={{
-                  color: state.allianceBranding && state.redPrimaryColor ? 'white' : '#fca5a5',
-                  textShadow: state.allianceBranding && state.redPrimaryColor 
-                    ? `0 0 40px ${state.redPrimaryColor}, 0 0 80px ${state.redSecondaryColor || state.redPrimaryColor}`
-                    : undefined,
-                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                  color: state.allianceBranding && leftPrimaryColor ? 'white' : (leftIsRed ? '#fca5a5' : '#93c5fd'),
+                  textShadow: state.allianceBranding && leftPrimaryColor 
+                    ? `0 0 40px ${leftPrimaryColor}, 0 0 80px ${leftSecondaryColor || leftPrimaryColor}`
+                    : undefined
                 }}
               >
-                {state.seriesEnabled ? state.redAllianceName : 'RED'}
+                {state.seriesEnabled ? leftAllianceName : (leftIsRed ? 'RED' : 'BLUE')}
               </h2>
               
               {/* Team Players */}
-              {state.allianceBranding && redTeam?.players && (
+              {state.allianceBranding && leftTeam?.players && (
                 <div className="mt-6">
                   <div 
                     className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
                     style={{
-                      backgroundColor: state.redSecondaryColor ? `${state.redSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
-                      borderColor: state.redPrimaryColor ? `${state.redPrimaryColor}40` : 'rgba(239, 68, 68, 0.2)',
-                      transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                      backgroundColor: leftSecondaryColor ? `${leftSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
+                      borderColor: leftPrimaryColor ? `${leftPrimaryColor}40` : (leftIsRed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)')
                     }}
                   >
-                    {redTeam.players.map((player, index) => (
+                    {leftTeam.players.map((player, index) => (
                       <div key={index} className="text-lg text-white font-medium">
                         {player}
                       </div>
@@ -233,12 +253,14 @@ export default function MatchPreview() {
               )}
             </div>
             
-            {/* Red Series Indicator - Bottom */}
+            {/* Left Series Indicator - Bottom */}
             {state.seriesEnabled && (
               <div className="absolute bottom-8 left-8 right-8">
-                <div className="bg-black/90 backdrop-blur-md border-2 border-red-500/50 rounded-lg p-4 shadow-xl">
+                <div className={`bg-black/90 backdrop-blur-md border-2 rounded-lg p-4 shadow-xl ${
+                  leftIsRed ? 'border-red-500/50' : 'border-blue-500/50'
+                }`}>
                   <div className="flex space-x-3 justify-center">
-                    {renderSeriesBoxes(state.redSeriesScore, 'red')}
+                    {renderSeriesBoxes(leftSeriesScore, leftIsRed ? 'red' : 'blue')}
                   </div>
                 </div>
               </div>
@@ -248,54 +270,62 @@ export default function MatchPreview() {
           {/* VS Separator */}
           <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
             <div className="bg-black/60 backdrop-blur-lg border border-white/30 rounded-full w-24 h-24 flex items-center justify-center shadow-2xl">
-              <span className="text-white text-2xl font-black tracking-widest" style={{
-                transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-              }}>VS</span>
+              <span className="text-white text-2xl font-black tracking-widest">VS</span>
             </div>
           </div>
 
-          {/* Blue Alliance */}
+          {/* Right Alliance */}
           <div 
             className="flex-1 flex flex-col items-center justify-center relative animate-pulse-slow border-l border-white/10"
             style={{
-              background: state.allianceBranding && state.bluePrimaryColor 
-                ? `linear-gradient(to left, ${state.bluePrimaryColor}, ${state.blueSecondaryColor || state.bluePrimaryColor})`
-                : 'linear-gradient(to left, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2))',
-              boxShadow: state.allianceBranding && state.bluePrimaryColor
-                ? `inset 0 0 60px ${state.bluePrimaryColor}20, inset 4px 0 20px ${state.bluePrimaryColor}30`
-                : 'inset 0 0 60px rgba(37, 99, 235, 0.1), inset 4px 0 20px rgba(59, 130, 246, 0.2)'
+              background: state.allianceBranding && rightPrimaryColor 
+                ? `linear-gradient(to left, ${rightPrimaryColor}, ${rightSecondaryColor || rightPrimaryColor})`
+                : rightIsRed
+                  ? 'linear-gradient(to left, rgba(220, 38, 38, 0.3), rgba(239, 68, 68, 0.2))'
+                  : 'linear-gradient(to left, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2))',
+              boxShadow: state.allianceBranding && rightPrimaryColor
+                ? `inset 0 0 60px ${rightPrimaryColor}20, inset 4px 0 20px ${rightPrimaryColor}30`
+                : rightIsRed
+                  ? 'inset 0 0 60px rgba(220, 38, 38, 0.1), inset 4px 0 20px rgba(239, 68, 68, 0.2)'
+                  : 'inset 0 0 60px rgba(37, 99, 235, 0.1), inset 4px 0 20px rgba(59, 130, 246, 0.2)'
             }}
           >
             {/* Animated background elements */}
             <div className="absolute inset-0 animate-float" style={{
-              background: state.allianceBranding && state.blueSecondaryColor
-                ? `radial-gradient(circle at 70% 50%, ${state.blueSecondaryColor}10, transparent)`
-                : 'radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.05), transparent)'
+              background: state.allianceBranding && rightSecondaryColor
+                ? `radial-gradient(circle at 70% 50%, ${rightSecondaryColor}10, transparent)`
+                : rightIsRed
+                  ? 'radial-gradient(circle at 70% 50%, rgba(239, 68, 68, 0.05), transparent)'
+                  : 'radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.05), transparent)'
             }}></div>
             <div className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full blur-xl animate-float-delayed" style={{
-              backgroundColor: state.allianceBranding && state.bluePrimaryColor
-                ? `${state.bluePrimaryColor}15`
-                : 'rgba(59, 130, 246, 0.1)'
+              backgroundColor: state.allianceBranding && rightPrimaryColor
+                ? `${rightPrimaryColor}15`
+                : rightIsRed
+                  ? 'rgba(239, 68, 68, 0.1)'
+                  : 'rgba(59, 130, 246, 0.1)'
             }}></div>
             <div className="absolute bottom-1/3 left-1/4 w-24 h-24 rounded-full blur-lg animate-bounce-slow" style={{
-              backgroundColor: state.allianceBranding && state.blueSecondaryColor
-                ? `${state.blueSecondaryColor}15`
-                : 'rgba(96, 165, 250, 0.1)'
+              backgroundColor: state.allianceBranding && rightSecondaryColor
+                ? `${rightSecondaryColor}15`
+                : rightIsRed
+                  ? 'rgba(248, 113, 113, 0.1)'
+                  : 'rgba(96, 165, 250, 0.1)'
             }}></div>
             
             <div className="text-center relative z-10">
               {/* Team Logo */}
-              {state.allianceBranding && blueTeam?.logo && (
+              {state.allianceBranding && rightTeam?.logo && (
                 <div className="mb-6 w-80 h-80 mx-auto relative">
                   <Image
-                    src={`/Team_Logos/${blueTeam.logo}`}
-                    alt={state.blueAllianceName}
+                    src={`/Team_Logos/${rightTeam.logo}`}
+                    alt={rightAllianceName}
                     width={320}
                     height={320}
                     style={{ 
                       objectFit: 'contain',
-                      filter: state.allianceBranding && state.bluePrimaryColor
-                        ? `drop-shadow(0 0 30px ${state.bluePrimaryColor}80) drop-shadow(0 0 60px ${state.blueSecondaryColor || state.bluePrimaryColor}40)`
+                      filter: state.allianceBranding && rightPrimaryColor
+                        ? `drop-shadow(0 0 30px ${rightPrimaryColor}80) drop-shadow(0 0 60px ${rightSecondaryColor || rightPrimaryColor}40)`
                         : undefined
                     }}
                     className="w-80 h-80 drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_35px_70px_rgba(0,0,0,0.9)] transition-all duration-300 animate-float-subtle"
@@ -306,28 +336,26 @@ export default function MatchPreview() {
               <h2 
                 className="text-5xl font-black tracking-wider drop-shadow-2xl"
                 style={{
-                  color: state.allianceBranding && state.bluePrimaryColor ? 'white' : '#93c5fd',
-                  textShadow: state.allianceBranding && state.bluePrimaryColor 
-                    ? `0 0 40px ${state.bluePrimaryColor}, 0 0 80px ${state.blueSecondaryColor || state.bluePrimaryColor}`
-                    : undefined,
-                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                  color: state.allianceBranding && rightPrimaryColor ? 'white' : (rightIsRed ? '#fca5a5' : '#93c5fd'),
+                  textShadow: state.allianceBranding && rightPrimaryColor 
+                    ? `0 0 40px ${rightPrimaryColor}, 0 0 80px ${rightSecondaryColor || rightPrimaryColor}`
+                    : undefined
                 }}
               >
-                {state.seriesEnabled ? state.blueAllianceName : 'BLUE'}
+                {state.seriesEnabled ? rightAllianceName : (rightIsRed ? 'RED' : 'BLUE')}
               </h2>
               
               {/* Team Players */}
-              {state.allianceBranding && blueTeam?.players && (
+              {state.allianceBranding && rightTeam?.players && (
                 <div className="mt-6">
                   <div 
                     className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
                     style={{
-                      backgroundColor: state.blueSecondaryColor ? `${state.blueSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
-                      borderColor: state.bluePrimaryColor ? `${state.bluePrimaryColor}40` : 'rgba(59, 130, 246, 0.2)',
-                      transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
+                      backgroundColor: rightSecondaryColor ? `${rightSecondaryColor}20` : 'rgba(0, 0, 0, 0.3)',
+                      borderColor: rightPrimaryColor ? `${rightPrimaryColor}40` : (rightIsRed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)')
                     }}
                   >
-                    {blueTeam.players.map((player, index) => (
+                    {rightTeam.players.map((player, index) => (
                       <div key={index} className="text-lg text-white font-medium">
                         {player}
                       </div>
@@ -337,12 +365,14 @@ export default function MatchPreview() {
               )}
             </div>
             
-            {/* Blue Series Indicator - Bottom */}
+            {/* Right Series Indicator - Bottom */}
             {state.seriesEnabled && (
               <div className="absolute bottom-8 left-8 right-8">
-                <div className="bg-black/90 backdrop-blur-md border-2 border-blue-500/50 rounded-lg p-4 shadow-xl">
+                <div className={`bg-black/90 backdrop-blur-md border-2 rounded-lg p-4 shadow-xl ${
+                  rightIsRed ? 'border-red-500/50' : 'border-blue-500/50'
+                }`}>
                   <div className="flex space-x-3 justify-center">
-                    {renderSeriesBoxes(state.blueSeriesScore, 'blue')}
+                    {renderSeriesBoxes(rightSeriesScore, rightIsRed ? 'red' : 'blue')}
                   </div>
                 </div>
               </div>

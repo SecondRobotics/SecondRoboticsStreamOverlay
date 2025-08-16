@@ -227,79 +227,107 @@ export default function Results({ state, currentTime }: ResultsProps) {
           
 
           {/* Score Display */}
-          <div className="flex items-center justify-center gap-16 mb-12" style={{
-            transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-          }}>
-            {/* Red Score (or Blue if flipped) */}
+          <div className="flex items-center justify-center gap-16 mb-12">
+            {/* Left Score */}
             <div className="text-center">
-              <div className={`text-8xl font-mono font-bold p-8 rounded-xl ${
-                winner === 'red' ? 'bg-red-600/80 animate-winner-glow' : 'bg-red-600/40'
-              }`} style={{
-                transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-              }}>
-                {state.redScore}
-              </div>
+              {!state.flippedTeams ? (
+                <div className={`text-8xl font-mono font-bold p-8 rounded-xl ${
+                  winner === 'red' ? 'bg-red-600/80 animate-winner-glow' : 'bg-red-600/40'
+                }`}>
+                  {state.redScore}
+                </div>
+              ) : (
+                <div className={`text-8xl font-mono font-bold p-8 rounded-xl ${
+                  winner === 'blue' ? 'bg-blue-600/80 animate-winner-glow' : 'bg-blue-600/40'
+                }`}>
+                  {state.blueScore}
+                </div>
+              )}
             </div>
 
             {/* VS */}
-            <div className="text-4xl font-bold text-gray-400" style={{
-              transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-            }}>VS</div>
+            <div className="text-4xl font-bold text-gray-400">VS</div>
 
-            {/* Blue Score (or Red if flipped) */}
+            {/* Right Score */}
             <div className="text-center">
-              <div className={`text-8xl font-mono font-bold p-8 rounded-xl ${
-                winner === 'blue' ? 'bg-blue-600/80 animate-winner-glow' : 'bg-blue-600/40'
-              }`} style={{
-                transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-              }}>
-                {state.blueScore}
-              </div>
+              {!state.flippedTeams ? (
+                <div className={`text-8xl font-mono font-bold p-8 rounded-xl ${
+                  winner === 'blue' ? 'bg-blue-600/80 animate-winner-glow' : 'bg-blue-600/40'
+                }`}>
+                  {state.blueScore}
+                </div>
+              ) : (
+                <div className={`text-8xl font-mono font-bold p-8 rounded-xl ${
+                  winner === 'red' ? 'bg-red-600/80 animate-winner-glow' : 'bg-red-600/40'
+                }`}>
+                  {state.redScore}
+                </div>
+              )}
             </div>
           </div>
 
 
           {/* OPR Contributions */}
-          <div className="grid grid-cols-2 gap-8" style={{
-            transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-          }}>
-            {/* Red Alliance OPR */}
+          <div className="grid grid-cols-2 gap-8">
+            {/* Left Alliance OPR */}
             <div>
               <div className="space-y-3">
-                {sortedRedOPR.map((player, index) => (
-                  <div 
-                    key={player.username || `red-player-${index}`}
-                    className="bg-red-700/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border border-red-400/40"
-                    style={{
-                      transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-                    }}
-                  >
-                    <span className="text-lg font-semibold text-red-100">{player.username}</span>
-                    <span className="text-xl font-mono font-bold text-red-200 bg-red-600/40 backdrop-blur-sm px-3 py-1.5 rounded">
-                      {player.score}
-                    </span>
-                  </div>
-                ))}
+                {!state.flippedTeams ? (
+                  sortedRedOPR.map((player, index) => (
+                    <div 
+                      key={player.username || `red-player-${index}`}
+                      className="bg-red-700/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border border-red-400/40"
+                    >
+                      <span className="text-lg font-semibold text-red-100">{player.username}</span>
+                      <span className="text-xl font-mono font-bold text-red-200 bg-red-600/40 backdrop-blur-sm px-3 py-1.5 rounded">
+                        {player.score}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  sortedBlueOPR.map((player, index) => (
+                    <div 
+                      key={player.username || `blue-player-${index}`}
+                      className="bg-blue-700/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border border-blue-400/40"
+                    >
+                      <span className="text-lg font-semibold text-blue-100">{player.username}</span>
+                      <span className="text-xl font-mono font-bold text-blue-200 bg-blue-600/40 backdrop-blur-sm px-3 py-1.5 rounded">
+                        {player.score}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
-            {/* Blue Alliance OPR */}
+            {/* Right Alliance OPR */}
             <div>
               <div className="space-y-3">
-                {sortedBlueOPR.map((player, index) => (
-                  <div 
-                    key={player.username || `blue-player-${index}`}
-                    className="bg-blue-700/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border border-blue-400/40"
-                    style={{
-                      transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-                    }}
-                  >
-                    <span className="text-lg font-semibold text-blue-100">{player.username}</span>
-                    <span className="text-xl font-mono font-bold text-blue-200 bg-blue-600/40 backdrop-blur-sm px-3 py-1.5 rounded">
-                      {player.score}
-                    </span>
-                  </div>
-                ))}
+                {!state.flippedTeams ? (
+                  sortedBlueOPR.map((player, index) => (
+                    <div 
+                      key={player.username || `blue-player-${index}`}
+                      className="bg-blue-700/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border border-blue-400/40"
+                    >
+                      <span className="text-lg font-semibold text-blue-100">{player.username}</span>
+                      <span className="text-xl font-mono font-bold text-blue-200 bg-blue-600/40 backdrop-blur-sm px-3 py-1.5 rounded">
+                        {player.score}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  sortedRedOPR.map((player, index) => (
+                    <div 
+                      key={player.username || `red-player-${index}`}
+                      className="bg-red-700/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border border-red-400/40"
+                    >
+                      <span className="text-lg font-semibold text-red-100">{player.username}</span>
+                      <span className="text-xl font-mono font-bold text-red-200 bg-red-600/40 backdrop-blur-sm px-3 py-1.5 rounded">
+                        {player.score}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

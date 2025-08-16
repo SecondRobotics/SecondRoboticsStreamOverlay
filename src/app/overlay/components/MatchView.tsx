@@ -79,6 +79,80 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
     [teams, state.blueTeamId]
   );
 
+  // Swap team data and components when flipped
+  const leftTeam = useMemo(() => 
+    state.flippedTeams ? blueTeam : redTeam,
+    [state.flippedTeams, redTeam, blueTeam]
+  );
+  
+  const rightTeam = useMemo(() => 
+    state.flippedTeams ? redTeam : blueTeam,
+    [state.flippedTeams, redTeam, blueTeam]
+  );
+
+  const leftScore = useMemo(() => 
+    state.flippedTeams ? state.blueScore : state.redScore,
+    [state.flippedTeams, state.redScore, state.blueScore]
+  );
+  
+  const rightScore = useMemo(() => 
+    state.flippedTeams ? state.redScore : state.blueScore,
+    [state.flippedTeams, state.redScore, state.blueScore]
+  );
+
+  const leftOPR = useMemo(() => 
+    state.flippedTeams ? sortedBlueOPR : sortedRedOPR,
+    [state.flippedTeams, sortedRedOPR, sortedBlueOPR]
+  );
+  
+  const rightOPR = useMemo(() => 
+    state.flippedTeams ? sortedRedOPR : sortedBlueOPR,
+    [state.flippedTeams, sortedRedOPR, sortedBlueOPR]
+  );
+
+  const leftOPRChanged = useMemo(() => 
+    state.flippedTeams ? oprChanged.blue : oprChanged.red,
+    [state.flippedTeams, oprChanged.red, oprChanged.blue]
+  );
+  
+  const rightOPRChanged = useMemo(() => 
+    state.flippedTeams ? oprChanged.red : oprChanged.blue,
+    [state.flippedTeams, oprChanged.red, oprChanged.blue]
+  );
+
+  const leftAnimatingScore = useMemo(() => 
+    state.flippedTeams ? animatingScores.blue : animatingScores.red,
+    [state.flippedTeams, animatingScores.red, animatingScores.blue]
+  );
+  
+  const rightAnimatingScore = useMemo(() => 
+    state.flippedTeams ? animatingScores.red : animatingScores.blue,
+    [state.flippedTeams, animatingScores.red, animatingScores.blue]
+  );
+
+  const leftScoreChanged = useMemo(() => 
+    state.flippedTeams ? scoreChanged.blue : scoreChanged.red,
+    [state.flippedTeams, scoreChanged.red, scoreChanged.blue]
+  );
+  
+  const rightScoreChanged = useMemo(() => 
+    state.flippedTeams ? scoreChanged.red : scoreChanged.blue,
+    [state.flippedTeams, scoreChanged.red, scoreChanged.blue]
+  );
+
+  const leftAllianceName = useMemo(() => 
+    state.flippedTeams ? state.blueAllianceName : state.redAllianceName,
+    [state.flippedTeams, state.redAllianceName, state.blueAllianceName]
+  );
+  
+  const rightAllianceName = useMemo(() => 
+    state.flippedTeams ? state.redAllianceName : state.blueAllianceName,
+    [state.flippedTeams, state.redAllianceName, state.blueAllianceName]
+  );
+
+  const leftIsRed = !state.flippedTeams;
+  const rightIsRed = state.flippedTeams;
+
   // Parse time string to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
     const [minutes, seconds] = timeStr.split(':').map(Number);
@@ -295,14 +369,12 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
             {/* Team Logos */}
             {state.allianceBranding && (
               <>
-                {/* Red Team Logo - Left Side (or Right if flipped) */}
-                {redTeam?.logo && (
-                  <div className={`absolute top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden ${
-                    state.flippedTeams ? 'right-0' : 'left-0'
-                  }`}>
+                {/* Left Side Logo */}
+                {leftTeam?.logo && (
+                  <div className="absolute left-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
                     <img
-                      src={`/Team_Logos/${redTeam.logo}`}
-                      alt={`${state.redAllianceName} Logo`}
+                      src={`/Team_Logos/${leftTeam.logo}`}
+                      alt={`${leftAllianceName} Logo`}
                       style={{ 
                         width: '100%', 
                         height: '100%', 
@@ -313,14 +385,12 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                   </div>
                 )}
                 
-                {/* Blue Team Logo - Right Side (or Left if flipped) */}
-                {blueTeam?.logo && (
-                  <div className={`absolute top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden ${
-                    state.flippedTeams ? 'left-0' : 'right-0'
-                  }`}>
+                {/* Right Side Logo */}
+                {rightTeam?.logo && (
+                  <div className="absolute right-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
                     <img
-                      src={`/Team_Logos/${blueTeam.logo}`}
-                      alt={`${state.blueAllianceName} Logo`}
+                      src={`/Team_Logos/${rightTeam.logo}`}
+                      alt={`${rightAllianceName} Logo`}
                       style={{ 
                         width: '100%', 
                         height: '100%', 
@@ -344,63 +414,61 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
               />
             </div>
             
-            <div className="flex items-center justify-center" style={{
-              transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-            }}>
-              {/* Left side - Red Alliance (or Blue if flipped) */}
+            <div className="flex items-center justify-center">
+              {/* Left side */}
               <div className="flex items-center justify-end gap-4 flex-1">
-                {/* Red Alliance OPR */}
-                <div className="text-sm text-red-100 opacity-90 space-y-2 text-right" style={{
-                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-                }}>
-                  {sortedRedOPR.map((player, index) => (
+                {/* Left Alliance OPR */}
+                <div className={`text-sm opacity-90 space-y-2 text-right ${leftIsRed ? 'text-red-100' : 'text-blue-100'}`}>
+                  {leftOPR.map((player, index) => (
                     <div 
-                      key={player.username || `red-player-${index}`} 
+                      key={player.username || `left-player-${index}`} 
                       className="flex items-center justify-end gap-2"
                     >
                       <span className="truncate max-w-[120px]">{player.username}</span>
-                      <span className={`font-mono bg-red-700/50 px-3 py-1.5 rounded text-sm ${
-                        oprChanged.red.has(player.username) ? 'animate-score-text-change' : ''
+                      <span className={`font-mono px-3 py-1.5 rounded text-sm ${
+                        leftIsRed ? 'bg-red-700/50' : 'bg-blue-700/50'
+                      } ${
+                        leftOPRChanged.has(player.username) ? 'animate-score-text-change' : ''
                       }`}>{player.score}</span>
                     </div>
                   ))}
                 </div>
                 
-                {/* Red Score */}
-                <div className="bg-red-600/80 rounded-lg p-8 text-center min-w-[180px] animate-red-glow mr-16">
+                {/* Left Score */}
+                <div className={`rounded-lg p-8 text-center min-w-[180px] mr-16 ${
+                  leftIsRed ? 'bg-red-600/80 animate-red-glow' : 'bg-blue-600/80 animate-blue-glow'
+                }`}>
                   <div className={`text-6xl font-mono font-bold text-white ${
-                    scoreChanged.red ? 'animate-score-text-change' : ''
-                  }`} style={{
-                    transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-                  }}>{animatingScores.red}</div>
+                    leftScoreChanged ? 'animate-score-text-change' : ''
+                  }`}>{leftAnimatingScore}</div>
                 </div>
               </div>
               
               {/* Center logo space */}
               <div className="w-24"></div>
               
-              {/* Right side - Blue Alliance (or Red if flipped) */}
+              {/* Right side */}
               <div className="flex items-center justify-start gap-4 flex-1">
-                {/* Blue Score */}
-                <div className="bg-blue-600/80 rounded-lg p-8 text-center min-w-[180px] animate-blue-glow ml-16">
+                {/* Right Score */}
+                <div className={`rounded-lg p-8 text-center min-w-[180px] ml-16 ${
+                  rightIsRed ? 'bg-red-600/80 animate-red-glow' : 'bg-blue-600/80 animate-blue-glow'
+                }`}>
                   <div className={`text-6xl font-mono font-bold text-white ${
-                    scoreChanged.blue ? 'animate-score-text-change' : ''
-                  }`} style={{
-                    transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-                  }}>{animatingScores.blue}</div>
+                    rightScoreChanged ? 'animate-score-text-change' : ''
+                  }`}>{rightAnimatingScore}</div>
                 </div>
                 
-                {/* Blue Alliance OPR */}
-                <div className="text-sm text-blue-100 opacity-90 space-y-2 text-left" style={{
-                  transform: state.flippedTeams ? 'scaleX(-1)' : 'none'
-                }}>
-                  {sortedBlueOPR.map((player, index) => (
+                {/* Right Alliance OPR */}
+                <div className={`text-sm opacity-90 space-y-2 text-left ${rightIsRed ? 'text-red-100' : 'text-blue-100'}`}>
+                  {rightOPR.map((player, index) => (
                     <div 
-                      key={player.username || `blue-player-${index}`} 
+                      key={player.username || `right-player-${index}`} 
                       className="flex items-center justify-start gap-2"
                     >
-                      <span className={`font-mono bg-blue-700/50 px-3 py-1.5 rounded text-sm ${
-                        oprChanged.blue.has(player.username) ? 'animate-score-text-change' : ''
+                      <span className={`font-mono px-3 py-1.5 rounded text-sm ${
+                        rightIsRed ? 'bg-red-700/50' : 'bg-blue-700/50'
+                      } ${
+                        rightOPRChanged.has(player.username) ? 'animate-score-text-change' : ''
                       }`}>{player.score}</span>
                       <span className="truncate max-w-[120px]">{player.username}</span>
                     </div>
