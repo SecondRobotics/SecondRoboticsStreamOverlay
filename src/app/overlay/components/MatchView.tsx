@@ -183,7 +183,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
       };
       
       readGameState();
-      const interval = setInterval(readGameState, 500);
+      const interval = setInterval(readGameState, 100);
       return () => clearInterval(interval);
     } else {
       // If no game file location, show timer by default

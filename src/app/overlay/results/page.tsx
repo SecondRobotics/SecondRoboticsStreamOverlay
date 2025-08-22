@@ -12,6 +12,7 @@ export default function ResultsOverlay() {
     matchTitle: 'FRC Stream Overlay',
     matchTime: '00:00',
     gameFileLocation: '',
+    gameState: '',
     redScore: 0,
     blueScore: 0,
     redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],

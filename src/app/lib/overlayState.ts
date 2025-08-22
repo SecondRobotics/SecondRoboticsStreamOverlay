@@ -6,6 +6,7 @@ export interface OverlayState {
   matchTime: string;
   startingTime?: string;
   gameFileLocation: string;
+  gameState?: string; // Track current game state
   redScore: number;
   blueScore: number;
   redOPR: { username: string; score: number }[];
@@ -29,6 +30,7 @@ export interface OverlayState {
   field2Enabled?: boolean;
   field2MatchTime?: string;
   field2GameFileLocation?: string;
+  field2GameState?: string; // Track Field 2 game state
   field2RedScore?: number;
   field2BlueScore?: number;
   field2RedOPR?: { username: string; score: number }[];
@@ -54,6 +56,7 @@ const defaultState: OverlayState = {
   matchTitle: 'FRC Stream Overlay',
   matchTime: '00:00',
   gameFileLocation: '',
+  gameState: '',
   redScore: 0,
   blueScore: 0,
   redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
@@ -120,28 +123,58 @@ export const setOverlayState = async (state: Partial<OverlayState>): Promise<voi
   }
 };
 
-export const subscribeToOverlayState = (callback: (state: OverlayState) => void) => {
+export const subscribeToOverlayState = (callback: (state: OverlayState) => void, options?: { forceHighSpeed?: boolean }) => {
   if (typeof window === 'undefined') return;
   
   let lastUpdated = 0;
   let isFirstCall = true;
+  let currentInterval: NodeJS.Timeout | null = null;
+  let lastPollRate = 0;
   
-  // Poll for state changes every 500ms
-  const interval = setInterval(async () => {
-    try {
-      const state = await getOverlayState();
-      // Call callback on first call or if state has actually changed
-      if (isFirstCall || (state.lastUpdated && state.lastUpdated !== lastUpdated)) {
-        lastUpdated = state.lastUpdated || 0;
-        isFirstCall = false;
-        callback(state);
-      }
-    } catch (error) {
-      console.error('Failed to poll overlay state:', error);
+  const startPolling = (pollRate: number) => {
+    // Only restart if poll rate changed
+    if (lastPollRate === pollRate && currentInterval) return;
+    
+    if (currentInterval) {
+      clearInterval(currentInterval);
     }
-  }, 500);
+    
+    lastPollRate = pollRate;
+    currentInterval = setInterval(async () => {
+      try {
+        const state = await getOverlayState();
+        
+        // Determine if we should be in high-speed mode using game state from the overlay state
+        const field1Active = state.gameState && state.gameState.trim() !== '' && state.gameState.trim() !== 'FINISHED';
+        const field2Active = state.field2Enabled && state.field2GameState && 
+                            state.field2GameState.trim() !== '' && state.field2GameState.trim() !== 'FINISHED';
+        
+        const shouldBeHighSpeed = options?.forceHighSpeed || field1Active || field2Active || state.mode === 'match';
+        
+        // Switch polling rate if needed
+        const desiredPollRate = shouldBeHighSpeed ? 100 : 1000; // 100ms when active, 1s when idle
+        if (desiredPollRate !== lastPollRate) {
+          startPolling(desiredPollRate);
+        }
+        
+        // Call callback on first call or if state has actually changed
+        if (isFirstCall || (state.lastUpdated && state.lastUpdated !== lastUpdated)) {
+          lastUpdated = state.lastUpdated || 0;
+          isFirstCall = false;
+          callback(state);
+        }
+      } catch (error) {
+        console.error('Failed to poll overlay state:', error);
+      }
+    }, pollRate);
+  };
+  
+  // Start with slow polling initially
+  startPolling(1000);
   
   return () => {
-    clearInterval(interval);
+    if (currentInterval) {
+      clearInterval(currentInterval);
+    }
   };
 };

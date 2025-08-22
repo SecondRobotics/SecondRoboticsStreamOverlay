@@ -10,9 +10,10 @@ export default function Field2MatchViewPage() {
   const [currentTime, setCurrentTime] = useState("");
 
   useEffect(() => {
+    // Force high speed polling for match view
     const unsubscribe = subscribeToOverlayState((state) => {
       setOverlayState(state);
-    });
+    }, { forceHighSpeed: true });
 
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());

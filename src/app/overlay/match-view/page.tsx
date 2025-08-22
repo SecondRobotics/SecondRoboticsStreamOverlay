@@ -12,6 +12,7 @@ export default function MatchViewOverlay() {
     matchTitle: 'FRC Stream Overlay',
     matchTime: '00:00',
     gameFileLocation: '',
+    gameState: '',
     redScore: 0,
     blueScore: 0,
     redOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
@@ -41,10 +42,10 @@ export default function MatchViewOverlay() {
     
     loadInitialState();
     
-    // Subscribe to state changes
+    // Subscribe to state changes - force high speed for match view
     const cleanup = subscribeToOverlayState((state) => {
       setLocalOverlayState(state);
-    });
+    }, { forceHighSpeed: true });
     
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());

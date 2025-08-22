@@ -9,6 +9,7 @@ let overlayState: OverlayState = {
   matchTime: '00:00',
   startingTime: '',
   gameFileLocation: '',
+  gameState: '',
   redScore: 0,
   blueScore: 0,
   redOPR: [],
@@ -101,18 +102,21 @@ export async function GET() {
       const blueScorePath = path.join(overlayState.gameFileLocation, 'Score_B.txt');
       const timerPath = path.join(overlayState.gameFileLocation, 'Timer.txt');
       const oprPath = path.join(overlayState.gameFileLocation, 'OPR.txt');
+      const gameStatePath = path.join(overlayState.gameFileLocation, 'GameState.txt');
       
       // Read new values from files
       const newRedScore = readScore(redScorePath);
       const newBlueScore = readScore(blueScorePath);
       const newMatchTime = readTimer(timerPath);
       const newOPR = readOPR(oprPath);
+      const newGameState = readTimer(gameStatePath); // Use readTimer since it reads text
       
       // Check if values actually changed
       if (
         overlayState.redScore !== newRedScore ||
         overlayState.blueScore !== newBlueScore ||
         overlayState.matchTime !== newMatchTime ||
+        overlayState.gameState !== newGameState ||
         JSON.stringify(overlayState.redOPR) !== JSON.stringify(newOPR.red) ||
         JSON.stringify(overlayState.blueOPR) !== JSON.stringify(newOPR.blue)
       ) {
@@ -122,6 +126,7 @@ export async function GET() {
           redScore: newRedScore,
           blueScore: newBlueScore,
           matchTime: newMatchTime,
+          gameState: newGameState,
           redOPR: newOPR.red,
           blueOPR: newOPR.blue,
         };
@@ -144,12 +149,14 @@ export async function GET() {
       const newBlueScore = readScore(blueScorePath);
       const newMatchTime = readTimer(timerPath);
       const newOPR = readOPR(oprPath);
+      const newGameState = readTimer(gameStatePath); // Use readTimer since it reads text
       
       // Check if values actually changed
       if (
         overlayState.field2RedScore !== newRedScore ||
         overlayState.field2BlueScore !== newBlueScore ||
         overlayState.field2MatchTime !== newMatchTime ||
+        overlayState.field2GameState !== newGameState ||
         JSON.stringify(overlayState.field2RedOPR) !== JSON.stringify(newOPR.red) ||
         JSON.stringify(overlayState.field2BlueOPR) !== JSON.stringify(newOPR.blue)
       ) {
@@ -159,6 +166,7 @@ export async function GET() {
           field2RedScore: newRedScore,
           field2BlueScore: newBlueScore,
           field2MatchTime: newMatchTime,
+          field2GameState: newGameState,
           field2RedOPR: newOPR.red,
           field2BlueOPR: newOPR.blue,
         };

@@ -121,7 +121,7 @@ export const useOptimizedScores = (field1Location: string, field2Location: strin
     // Initial poll
     pollScores();
 
-    // Set up interval for polling
+    // Set up simple interval for polling - let overlay state handle adaptive polling
     const interval = setInterval(pollScores, pollInterval);
 
     return () => {
