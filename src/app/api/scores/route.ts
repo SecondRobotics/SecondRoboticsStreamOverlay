@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readFileSync, statSync } from 'fs';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -6,6 +7,11 @@ interface ScoreData {
   redScore: number;
   blueScore: number;
   error?: string;
+}
+
+interface BothFieldsScoreData {
+  field1?: ScoreData;
+  field2?: ScoreData;
 }
 
 // Cache for file stats and scores to reduce file system calls
@@ -16,6 +22,96 @@ const scoreCache = new Map<string, {
   blueMtime: number;
   error?: string;
 }>();
+
+// Optimized GET endpoint for both fields at once
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const field1Path = searchParams.get('field1');
+  const field2Path = searchParams.get('field2');
+  
+  const response: BothFieldsScoreData = {};
+  
+  if (field1Path && field1Path.trim() !== '') {
+    response.field1 = getScoresForField(field1Path);
+  }
+  
+  if (field2Path && field2Path.trim() !== '') {
+    response.field2 = getScoresForField(field2Path);
+  }
+  
+  return NextResponse.json(response, {
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
+  });
+}
+
+function getScoresForField(gameFileLocation: string): ScoreData {
+  try {
+    const redScorePath = path.join(gameFileLocation, 'Score_R.txt');
+    const blueScorePath = path.join(gameFileLocation, 'Score_B.txt');
+    const cacheKey = gameFileLocation;
+    
+    // Try to get file stats
+    let redMtime = 0;
+    let blueMtime = 0;
+    
+    try {
+      const redStat = statSync(redScorePath);
+      redMtime = redStat.mtimeMs;
+    } catch {}
+    
+    try {
+      const blueStat = statSync(blueScorePath);
+      blueMtime = blueStat.mtimeMs;
+    } catch {}
+    
+    // Check cache
+    const cached = scoreCache.get(cacheKey);
+    if (cached && cached.redMtime === redMtime && cached.blueMtime === blueMtime) {
+      return {
+        redScore: cached.redScore,
+        blueScore: cached.blueScore
+      };
+    }
+    
+    // Read scores
+    let redScore = 0;
+    let blueScore = 0;
+    
+    try {
+      const redContent = readFileSync(redScorePath, 'utf-8').trim();
+      redScore = parseInt(redContent) || 0;
+    } catch {}
+    
+    try {
+      const blueContent = readFileSync(blueScorePath, 'utf-8').trim();
+      blueScore = parseInt(blueContent) || 0;
+    } catch {}
+    
+    // Update cache
+    scoreCache.set(cacheKey, {
+      redScore,
+      blueScore,
+      redMtime,
+      blueMtime
+    });
+    
+    // Clean cache if too large
+    if (scoreCache.size > 50) {
+      const firstKey = scoreCache.keys().next().value;
+      if (firstKey) {
+        scoreCache.delete(firstKey);
+      }
+    }
+    
+    return { redScore, blueScore };
+  } catch {
+    return { redScore: 0, blueScore: 0 };
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {

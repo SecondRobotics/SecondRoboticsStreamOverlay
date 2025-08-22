@@ -226,7 +226,7 @@ export default function StartingSoon({ state, currentTime }: StartingSoonProps) 
                   { label: 'Hours', value: timeRemaining.hours + (timeRemaining.days * 24) },
                   { label: 'Minutes', value: timeRemaining.minutes },
                   { label: 'Seconds', value: timeRemaining.seconds }
-                ].map((unit, index) => (
+                ].map((unit, index) => ( // eslint-disable-line @typescript-eslint/no-unused-vars
                   <div key={unit.label} className="flex flex-col items-center">
                     <div 
                       className="text-7xl font-bold text-white mb-2 transition-all duration-300"

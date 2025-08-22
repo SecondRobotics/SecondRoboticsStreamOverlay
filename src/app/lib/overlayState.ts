@@ -25,6 +25,28 @@ export interface OverlayState {
   blueSecondaryColor?: string;
   allianceBranding: boolean;
   flippedTeams?: boolean;
+  // Field 2 properties
+  field2Enabled?: boolean;
+  field2MatchTime?: string;
+  field2GameFileLocation?: string;
+  field2RedScore?: number;
+  field2BlueScore?: number;
+  field2RedOPR?: { username: string; score: number }[];
+  field2BlueOPR?: { username: string; score: number }[];
+  field2SeriesEnabled?: boolean;
+  field2SeriesType?: 'bo3' | 'bo5' | 'bo7';
+  field2RedAllianceName?: string;
+  field2BlueAllianceName?: string;
+  field2RedSeriesScore?: number;
+  field2BlueSeriesScore?: number;
+  field2RedTeamId?: string;
+  field2BlueTeamId?: string;
+  field2RedPrimaryColor?: string;
+  field2RedSecondaryColor?: string;
+  field2BluePrimaryColor?: string;
+  field2BlueSecondaryColor?: string;
+  field2AllianceBranding?: boolean;
+  field2FlippedTeams?: boolean;
 }
 
 const defaultState: OverlayState = {
@@ -45,6 +67,22 @@ const defaultState: OverlayState = {
   blueSeriesScore: 0,
   allianceBranding: false,
   flippedTeams: false,
+  // Field 2 defaults
+  field2Enabled: false,
+  field2MatchTime: '00:00',
+  field2GameFileLocation: '',
+  field2RedScore: 0,
+  field2BlueScore: 0,
+  field2RedOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+  field2BlueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+  field2SeriesEnabled: false,
+  field2SeriesType: 'bo3',
+  field2RedAllianceName: 'Red Alliance',
+  field2BlueAllianceName: 'Blue Alliance',
+  field2RedSeriesScore: 0,
+  field2BlueSeriesScore: 0,
+  field2AllianceBranding: false,
+  field2FlippedTeams: false,
 };
 
 export const getOverlayState = async (): Promise<OverlayState> => {
@@ -82,14 +120,22 @@ export const setOverlayState = async (state: Partial<OverlayState>): Promise<voi
   }
 };
 
-export const useOverlayState = (callback: (state: OverlayState) => void) => {
+export const subscribeToOverlayState = (callback: (state: OverlayState) => void) => {
   if (typeof window === 'undefined') return;
+  
+  let lastUpdated = 0;
+  let isFirstCall = true;
   
   // Poll for state changes every 500ms
   const interval = setInterval(async () => {
     try {
       const state = await getOverlayState();
-      callback(state);
+      // Call callback on first call or if state has actually changed
+      if (isFirstCall || (state.lastUpdated && state.lastUpdated !== lastUpdated)) {
+        lastUpdated = state.lastUpdated || 0;
+        isFirstCall = false;
+        callback(state);
+      }
     } catch (error) {
       console.error('Failed to poll overlay state:', error);
     }

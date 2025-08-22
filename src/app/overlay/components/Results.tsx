@@ -9,12 +9,11 @@ interface ResultsProps {
   currentTime: string;
 }
 
-export default function Results({ state, currentTime }: ResultsProps) {
+export default function Results({ state }: ResultsProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(true);
   const [differentialData, setDifferentialData] = useState<PointsDifferentialData[]>([]);
-  const [gameData, setGameData] = useState({
+  const [gameData, setGameData] = useState({ // eslint-disable-line @typescript-eslint/no-unused-vars
     autoLeaveR: '0',
     autoLeaveB: '0',
     autoR: '0',
@@ -62,66 +61,6 @@ export default function Results({ state, currentTime }: ResultsProps) {
   const winner = state.redScore > state.blueScore ? 'red' : 
                  state.blueScore > state.redScore ? 'blue' : 'tie';
 
-  // Calculate Algae scores
-  const algaeScores = useMemo(() => {
-    const redProc = parseInt(gameData.teleProcR) || 0;
-    const redNet = parseInt(gameData.teleNetR) || 0;
-    const blueProc = parseInt(gameData.teleProcB) || 0;
-    const blueNet = parseInt(gameData.teleNetB) || 0;
-
-    return {
-      red: (redProc * 6) + (redNet * 4),
-      blue: (blueProc * 6) + (blueNet * 4)
-    };
-  }, [gameData.teleProcR, gameData.teleNetR, gameData.teleProcB, gameData.teleNetB]);
-
-  // Calculate Coral scores
-  const coralScores = useMemo(() => {
-    // Red alliance coral calculation
-    const redAutoL1 = parseInt(gameData.autoL1R) || 0;
-    const redAutoL2 = parseInt(gameData.autoL2R) || 0;
-    const redAutoL3 = parseInt(gameData.autoL3R) || 0;
-    const redAutoL4 = parseInt(gameData.autoL4R) || 0;
-    const redTeleL1 = parseInt(gameData.teleL1R) || 0;
-    const redTeleL2 = parseInt(gameData.teleL2R) || 0;
-    const redTeleL3 = parseInt(gameData.teleL3R) || 0;
-    const redTeleL4 = parseInt(gameData.teleL4R) || 0;
-
-    // Blue alliance coral calculation
-    const blueAutoL1 = parseInt(gameData.autoL1B) || 0;
-    const blueAutoL2 = parseInt(gameData.autoL2B) || 0;
-    const blueAutoL3 = parseInt(gameData.autoL3B) || 0;
-    const blueAutoL4 = parseInt(gameData.autoL4B) || 0;
-    const blueTeleL1 = parseInt(gameData.teleL1B) || 0;
-    const blueTeleL2 = parseInt(gameData.teleL2B) || 0;
-    const blueTeleL3 = parseInt(gameData.teleL3B) || 0;
-    const blueTeleL4 = parseInt(gameData.teleL4B) || 0;
-
-    return {
-      red: (redAutoL1 * 3) + (redAutoL2 * 4) + (redAutoL3 * 6) + (redAutoL4 * 7) + 
-           (redTeleL1 * 2) + (redTeleL2 * 3) + (redTeleL3 * 4) + (redTeleL4 * 5),
-      blue: (blueAutoL1 * 3) + (blueAutoL2 * 4) + (blueAutoL3 * 6) + (blueAutoL4 * 7) + 
-            (blueTeleL1 * 2) + (blueTeleL2 * 3) + (blueTeleL3 * 4) + (blueTeleL4 * 5)
-    };
-  }, [
-    gameData.autoL1R, gameData.autoL2R, gameData.autoL3R, gameData.autoL4R,
-    gameData.teleL1R, gameData.teleL2R, gameData.teleL3R, gameData.teleL4R,
-    gameData.autoL1B, gameData.autoL2B, gameData.autoL3B, gameData.autoL4B,
-    gameData.teleL1B, gameData.teleL2B, gameData.teleL3B, gameData.teleL4B
-  ]);
-
-  // Calculate Fouls scores
-  const foulScores = useMemo(() => {
-    const redMajFouls = parseInt(gameData.majFoulsR) || 0;
-    const redMinFouls = parseInt(gameData.minFoulsR) || 0;
-    const blueMajFouls = parseInt(gameData.majFoulsB) || 0;
-    const blueMinFouls = parseInt(gameData.minFoulsB) || 0;
-
-    return {
-      red: (redMajFouls * 6) + (redMinFouls * 2),
-      blue: (blueMajFouls * 6) + (blueMinFouls * 2)
-    };
-  }, [gameData.majFoulsR, gameData.minFoulsR, gameData.majFoulsB, gameData.minFoulsB]);
 
   useEffect(() => {
     // Show immediately, no delay

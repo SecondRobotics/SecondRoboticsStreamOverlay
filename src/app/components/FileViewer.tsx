@@ -50,7 +50,7 @@ export default function FileViewer({ gameFileLocation }: FileViewerProps) {
       } else {
         setFiles(data.files || []);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load files');
       setFiles([]);
     } finally {

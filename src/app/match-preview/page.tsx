@@ -207,7 +207,7 @@ export default function MatchPreview() {
                 <div className="mb-6 w-80 h-80 mx-auto relative">
                   <Image
                     src={`/Team_Logos/${leftTeam.logo}`}
-                    alt={leftAllianceName}
+                    alt={leftAllianceName || 'Team Logo'}
                     width={320}
                     height={320}
                     style={{ 
@@ -260,7 +260,7 @@ export default function MatchPreview() {
                   leftIsRed ? 'border-red-500/50' : 'border-blue-500/50'
                 }`}>
                   <div className="flex space-x-3 justify-center">
-                    {renderSeriesBoxes(leftSeriesScore, leftIsRed ? 'red' : 'blue')}
+                    {renderSeriesBoxes(leftSeriesScore || 0, leftIsRed ? 'red' : 'blue')}
                   </div>
                 </div>
               </div>
@@ -319,7 +319,7 @@ export default function MatchPreview() {
                 <div className="mb-6 w-80 h-80 mx-auto relative">
                   <Image
                     src={`/Team_Logos/${rightTeam.logo}`}
-                    alt={rightAllianceName}
+                    alt={rightAllianceName || 'Team Logo'}
                     width={320}
                     height={320}
                     style={{ 
@@ -372,7 +372,7 @@ export default function MatchPreview() {
                   rightIsRed ? 'border-red-500/50' : 'border-blue-500/50'
                 }`}>
                   <div className="flex space-x-3 justify-center">
-                    {renderSeriesBoxes(rightSeriesScore, rightIsRed ? 'red' : 'blue')}
+                    {renderSeriesBoxes(rightSeriesScore || 0, rightIsRed ? 'red' : 'blue')}
                   </div>
                 </div>
               </div>

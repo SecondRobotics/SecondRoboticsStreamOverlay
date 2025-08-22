@@ -36,37 +36,6 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
       .slice(0, 3);
   }, [animatingOPR.blue]);
 
-  // Memoize color calculations for alliance branding
-  const colorConfig = useMemo(() => {
-    console.log('MatchView Color Config:', {
-      allianceBranding: state.allianceBranding,
-      redPrimaryColor: state.redPrimaryColor,
-      bluePrimaryColor: state.bluePrimaryColor,
-      redSecondaryColor: state.redSecondaryColor,
-      blueSecondaryColor: state.blueSecondaryColor
-    });
-    
-    return {
-      redScoreBackground: state.allianceBranding && state.redPrimaryColor 
-        ? state.redPrimaryColor 
-        : '#DC2626',
-      blueScoreBackground: state.allianceBranding && state.bluePrimaryColor 
-        ? state.bluePrimaryColor 
-        : '#2563EB',
-      redOPRBackground: state.allianceBranding && state.redSecondaryColor 
-        ? state.redSecondaryColor 
-        : '#B91C1C',
-      blueOPRBackground: state.allianceBranding && state.blueSecondaryColor 
-        ? state.blueSecondaryColor 
-        : '#1E40AF',
-      redGlowColor: state.allianceBranding && state.redPrimaryColor 
-        ? state.redPrimaryColor 
-        : '#EF4444',
-      blueGlowColor: state.allianceBranding && state.bluePrimaryColor 
-        ? state.bluePrimaryColor 
-        : '#3B82F6'
-    };
-  }, [state.allianceBranding, state.redPrimaryColor, state.bluePrimaryColor, state.redSecondaryColor, state.blueSecondaryColor]);
 
   // Get teams by ID
   const redTeam = useMemo(() => 
@@ -90,15 +59,6 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
     [state.flippedTeams, redTeam, blueTeam]
   );
 
-  const leftScore = useMemo(() => 
-    state.flippedTeams ? state.blueScore : state.redScore,
-    [state.flippedTeams, state.redScore, state.blueScore]
-  );
-  
-  const rightScore = useMemo(() => 
-    state.flippedTeams ? state.redScore : state.blueScore,
-    [state.flippedTeams, state.redScore, state.blueScore]
-  );
 
   const leftOPR = useMemo(() => 
     state.flippedTeams ? sortedBlueOPR : sortedRedOPR,
@@ -215,7 +175,7 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
               pointsDifferentialTracker.stopLogging();
             }
           }
-        } catch (error) {
+        } catch {
           setGameState('Error reading GameState.txt');
           // If we can't read the game state, show the timer by default
           setShowTimer(true);

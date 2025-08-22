@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       }
     });
     
-  } catch (error) {
+  } catch {
     // Return 0 on any error for score files
     return new NextResponse('0', { 
       status: 200,

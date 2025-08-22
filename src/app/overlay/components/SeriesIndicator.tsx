@@ -22,9 +22,9 @@ export default function SeriesIndicator({
   blueAllianceName = 'Blue Alliance',
   allianceBranding = false,
   redPrimaryColor,
-  redSecondaryColor,
+  redSecondaryColor, // eslint-disable-line @typescript-eslint/no-unused-vars
   bluePrimaryColor,
-  blueSecondaryColor,
+  blueSecondaryColor, // eslint-disable-line @typescript-eslint/no-unused-vars
   flippedTeams = false
 }: SeriesIndicatorProps) {
   const validSeriesType = seriesType || 'bo3';

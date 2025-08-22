@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { getOverlayState, setOverlayState, useOverlayState, OverlayState } from "./lib/overlayState";
+import { useState, useEffect, useRef } from "react";
+import { getOverlayState, setOverlayState, subscribeToOverlayState, OverlayState } from "./lib/overlayState";
 import FileViewer from "./components/FileViewer";
 import { Team, loadTeams } from "./lib/teams";
 
@@ -27,8 +27,29 @@ export default function Dashboard() {
     redSeriesScore: 0,
     blueSeriesScore: 0,
     allianceBranding: false,
+    // Field 2
+    field2Enabled: false,
+    field2MatchTime: '00:00',
+    field2GameFileLocation: '',
+    field2RedScore: 0,
+    field2BlueScore: 0,
+    field2RedOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+    field2BlueOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],
+    field2SeriesEnabled: false,
+    field2SeriesType: 'bo3',
+    field2RedAllianceName: 'Red Alliance',
+    field2BlueAllianceName: 'Blue Alliance',
+    field2RedSeriesScore: 0,
+    field2BlueSeriesScore: 0,
+    field2AllianceBranding: false,
   });
   const [isEditing, setIsEditing] = useState<string | null>(null);
+  const isEditingRef = useRef(isEditing);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+  }, [isEditing]);
 
   useEffect(() => {
     // Load initial state and teams
@@ -43,15 +64,16 @@ export default function Dashboard() {
     
     loadInitialData();
     
-    const cleanup = useOverlayState((state) => {
+    // Subscribe to state changes
+    const cleanup = subscribeToOverlayState((state) => {
       // Only update state if user isn't currently editing a field
-      if (!isEditing) {
+      if (!isEditingRef.current) {
         setLocalOverlayState(state);
       }
     });
     
     return cleanup;
-  }, [isEditing]);
+  }, []);
 
   const copyOverlayUrl = async (path = '/overlay') => {
     const url = `${window.location.origin}${path}`;
@@ -89,7 +111,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Overlay Management
+              Field 1 Overlay Management
             </h2>
             <div className="space-y-3">
               <div className="flex gap-2">
@@ -97,7 +119,7 @@ export default function Dashboard() {
                   href="/overlay/starting-soon"
                   className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
                 >
-                  Starting Soon
+                  Starting Soon (Both Fields)
                 </Link>
                 <button
                   onClick={() => copyOverlayUrl('/overlay/starting-soon')}
@@ -112,7 +134,7 @@ export default function Dashboard() {
                   href="/overlay/match-view"
                   className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
                 >
-                  Match View
+                  F1 Match View
                 </Link>
                 <button
                   onClick={() => copyOverlayUrl('/overlay/match-view')}
@@ -127,7 +149,7 @@ export default function Dashboard() {
                   href="/overlay/results"
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
                 >
-                  Results
+                  F1 Results
                 </Link>
                 <button
                   onClick={() => copyOverlayUrl('/overlay/results')}
@@ -509,9 +531,404 @@ export default function Dashboard() {
 
         </div>
 
-        {/* File Viewer Widget */}
+        {/* Field 2 Section */}
         <div className="mt-8">
-          <FileViewer key={overlayState.gameFileLocation} gameFileLocation={overlayState.gameFileLocation} />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Field 2 Configuration
+            </h2>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={overlayState.field2Enabled}
+              onClick={() => {
+                const enabled = !overlayState.field2Enabled;
+                setLocalOverlayState(prev => ({ ...prev, field2Enabled: enabled }));
+                setOverlayState({ field2Enabled: enabled });
+              }}
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                overlayState.field2Enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+              }`}
+            >
+              <span className="sr-only">Enable Field 2</span>
+              <span
+                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                  overlayState.field2Enabled ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          
+          {overlayState.field2Enabled && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Field 2 Overlay Management
+                </h3>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-400 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md mb-3">
+                    <strong>Note:</strong> Starting Soon uses shared event data - use the main Starting Soon overlay for both fields.
+                  </div>
+                  <div className="flex gap-2">
+                    <Link
+                      href="/overlay/field2/match-view"
+                      className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                    >
+                      F2 Match View
+                    </Link>
+                    <button
+                      onClick={() => copyOverlayUrl('/overlay/field2/match-view')}
+                      className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                      title="Copy Field 2 Match View URL"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link
+                      href="/overlay/field2/results"
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md text-center transition-colors"
+                    >
+                      F2 Results
+                    </Link>
+                    <button
+                      onClick={() => copyOverlayUrl('/overlay/field2/results')}
+                      className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded-md transition-colors"
+                      title="Copy Field 2 Results URL"
+                    >
+                      📋
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Field 2 Display Settings
+                </h3>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-400 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                    <strong>Note:</strong> Event name and starting time are shared between both fields and can be configured in the main Display Settings.
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="field2FlippedTeams" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Flip Team Sides
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={overlayState.field2FlippedTeams}
+                      onClick={() => {
+                        const flipped = !overlayState.field2FlippedTeams;
+                        setLocalOverlayState(prev => ({ ...prev, field2FlippedTeams: flipped }));
+                        setOverlayState({ field2FlippedTeams: flipped });
+                      }}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        overlayState.field2FlippedTeams ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                      }`}
+                    >
+                      <span className="sr-only">Flip Team Sides</span>
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          overlayState.field2FlippedTeams ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="field2AllianceBranding" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Alliance Branding
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={overlayState.field2AllianceBranding}
+                      onClick={() => {
+                        const enabled = !overlayState.field2AllianceBranding;
+                        setLocalOverlayState(prev => ({ ...prev, field2AllianceBranding: enabled }));
+                        setOverlayState({ field2AllianceBranding: enabled });
+                      }}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        overlayState.field2AllianceBranding ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                      }`}
+                    >
+                      <span className="sr-only">Enable Alliance Branding</span>
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          overlayState.field2AllianceBranding ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Field 2 Game File Settings
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Game File Location
+                    </label>
+                    <input
+                      type="text"
+                      value={overlayState.field2GameFileLocation || ''}
+                      onChange={(e) => setLocalOverlayState(prev => ({ ...prev, field2GameFileLocation: e.target.value }))}
+                      onFocus={() => setIsEditing('field2GameFileLocation')}
+                      onBlur={(e) => {
+                        setIsEditing(null);
+                        updateOverlayData('field2GameFileLocation', e.target.value);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Enter game file path or URL"
+                    />
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      Path to Field 2 game data file
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Field 2 Best-of Series Settings
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="field2SeriesEnabled" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Enable Best-of Series
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={overlayState.field2SeriesEnabled}
+                      onClick={() => {
+                        const enabled = !overlayState.field2SeriesEnabled;
+                        setLocalOverlayState(prev => ({ ...prev, field2SeriesEnabled: enabled }));
+                        setOverlayState({ field2SeriesEnabled: enabled });
+                      }}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        overlayState.field2SeriesEnabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                      }`}
+                    >
+                      <span className="sr-only">Enable Best-of Series</span>
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          overlayState.field2SeriesEnabled ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  
+                  {overlayState.field2SeriesEnabled && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Series Type
+                        </label>
+                        <select
+                          value={overlayState.field2SeriesType || 'bo3'}
+                          onChange={(e) => {
+                            const seriesType = e.target.value as 'bo3' | 'bo5' | 'bo7';
+                            setLocalOverlayState(prev => ({ ...prev, field2SeriesType: seriesType, field2RedSeriesScore: 0, field2BlueSeriesScore: 0 }));
+                            setOverlayState({ field2SeriesType: seriesType, field2RedSeriesScore: 0, field2BlueSeriesScore: 0 });
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                          <option value="bo3">Best of 3</option>
+                          <option value="bo5">Best of 5</option>
+                          <option value="bo7">Best of 7</option>
+                        </select>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                            Red Alliance Name
+                          </label>
+                          <input
+                            type="text"
+                            value={overlayState.field2RedAllianceName || ''}
+                            onChange={(e) => setLocalOverlayState(prev => ({ ...prev, field2RedAllianceName: e.target.value }))}
+                            onFocus={() => setIsEditing('field2RedAllianceName')}
+                            onBlur={(e) => {
+                              setIsEditing(null);
+                              updateOverlayData('field2RedAllianceName', e.target.value);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Red Alliance"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            Blue Alliance Name
+                          </label>
+                          <input
+                            type="text"
+                            value={overlayState.field2BlueAllianceName || ''}
+                            onChange={(e) => setLocalOverlayState(prev => ({ ...prev, field2BlueAllianceName: e.target.value }))}
+                            onFocus={() => setIsEditing('field2BlueAllianceName')}
+                            onBlur={(e) => {
+                              setIsEditing(null);
+                              updateOverlayData('field2BlueAllianceName', e.target.value);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Blue Alliance"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                            Red Team
+                          </label>
+                          <select
+                            value={overlayState.field2RedTeamId || ''}
+                            onChange={(e) => {
+                              const teamId = e.target.value;
+                              const team = teams.find(t => t.id === teamId);
+                              if (team) {
+                                setLocalOverlayState(prev => ({ 
+                                  ...prev, 
+                                  field2RedTeamId: team.id,
+                                  field2RedAllianceName: team.name,
+                                  field2RedPrimaryColor: team.primaryColor,
+                                  field2RedSecondaryColor: team.secondaryColor
+                                }));
+                                setOverlayState({ 
+                                  field2RedTeamId: team.id,
+                                  field2RedAllianceName: team.name,
+                                  field2RedPrimaryColor: team.primaryColor,
+                                  field2RedSecondaryColor: team.secondaryColor
+                                });
+                              }
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          >
+                            <option value="">Custom Team</option>
+                            {teams.length > 0 ? teams.map(team => (
+                              <option key={team.id} value={team.id}>{team.name}</option>
+                            )) : <option disabled>Loading teams...</option>}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            Blue Team
+                          </label>
+                          <select
+                            value={overlayState.field2BlueTeamId || ''}
+                            onChange={(e) => {
+                              const teamId = e.target.value;
+                              const team = teams.find(t => t.id === teamId);
+                              if (team) {
+                                setLocalOverlayState(prev => ({ 
+                                  ...prev, 
+                                  field2BlueTeamId: team.id,
+                                  field2BlueAllianceName: team.name,
+                                  field2BluePrimaryColor: team.primaryColor,
+                                  field2BlueSecondaryColor: team.secondaryColor
+                                }));
+                                setOverlayState({ 
+                                  field2BlueTeamId: team.id,
+                                  field2BlueAllianceName: team.name,
+                                  field2BluePrimaryColor: team.primaryColor,
+                                  field2BlueSecondaryColor: team.secondaryColor
+                                });
+                              }
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          >
+                            <option value="">Custom Team</option>
+                            {teams.length > 0 ? teams.map(team => (
+                              <option key={team.id} value={team.id}>{team.name}</option>
+                            )) : <option disabled>Loading teams...</option>}
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                            Red Series Score
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => {
+                                const newScore = Math.max(0, (overlayState.field2RedSeriesScore || 0) - 1);
+                                setLocalOverlayState(prev => ({ ...prev, field2RedSeriesScore: newScore }));
+                                setOverlayState({ field2RedSeriesScore: newScore });
+                              }}
+                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                            >
+                              -
+                            </button>
+                            <span className="w-12 text-center font-bold text-lg">{overlayState.field2RedSeriesScore || 0}</span>
+                            <button
+                              onClick={() => {
+                                const maxWins = overlayState.field2SeriesType === 'bo3' ? 2 : overlayState.field2SeriesType === 'bo5' ? 3 : 4;
+                                const newScore = Math.min(maxWins, (overlayState.field2RedSeriesScore || 0) + 1);
+                                setLocalOverlayState(prev => ({ ...prev, field2RedSeriesScore: newScore }));
+                                setOverlayState({ field2RedSeriesScore: newScore });
+                              }}
+                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            Blue Series Score
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => {
+                                const newScore = Math.max(0, (overlayState.field2BlueSeriesScore || 0) - 1);
+                                setLocalOverlayState(prev => ({ ...prev, field2BlueSeriesScore: newScore }));
+                                setOverlayState({ field2BlueSeriesScore: newScore });
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                            >
+                              -
+                            </button>
+                            <span className="w-12 text-center font-bold text-lg">{overlayState.field2BlueSeriesScore || 0}</span>
+                            <button
+                              onClick={() => {
+                                const maxWins = overlayState.field2SeriesType === 'bo3' ? 2 : overlayState.field2SeriesType === 'bo5' ? 3 : 4;
+                                const newScore = Math.min(maxWins, (overlayState.field2BlueSeriesScore || 0) + 1);
+                                setLocalOverlayState(prev => ({ ...prev, field2BlueSeriesScore: newScore }));
+                                setOverlayState({ field2BlueSeriesScore: newScore });
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* File Viewer Widgets */}
+        <div className="mt-8 space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Field 1 Files</h3>
+            <FileViewer key={`field1-${overlayState.gameFileLocation}`} gameFileLocation={overlayState.gameFileLocation} />
+          </div>
+          {overlayState.field2Enabled && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Field 2 Files</h3>
+              <FileViewer key={`field2-${overlayState.field2GameFileLocation}`} gameFileLocation={overlayState.field2GameFileLocation || ''} />
+            </div>
+          )}
         </div>
       </div>
     </div>

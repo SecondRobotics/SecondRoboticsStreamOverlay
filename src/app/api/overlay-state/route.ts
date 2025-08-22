@@ -1,34 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync } from 'fs';
 import path from 'path';
-
-export type OverlayMode = 'match' | 'starting-soon' | 'results';
-
-export interface OverlayState {
-  mode: OverlayMode;
-  matchTitle: string;
-  matchTime: string;
-  startingTime?: string;
-  gameFileLocation: string;
-  redScore: number;
-  blueScore: number;
-  redOPR: { username: string; score: number }[];
-  blueOPR: { username: string; score: number }[];
-  lastUpdated: number;
-  seriesEnabled: boolean;
-  seriesType: 'bo3' | 'bo5' | 'bo7';
-  redAllianceName: string;
-  blueAllianceName: string;
-  redSeriesScore: number;
-  blueSeriesScore: number;
-  redTeamId?: string;
-  blueTeamId?: string;
-  redPrimaryColor?: string;
-  redSecondaryColor?: string;
-  bluePrimaryColor?: string;
-  blueSecondaryColor?: string;
-  allianceBranding: boolean;
-}
+import { OverlayState } from '../../lib/overlayState';
 
 let overlayState: OverlayState = {
   mode: 'starting-soon',
@@ -48,13 +21,28 @@ let overlayState: OverlayState = {
   redSeriesScore: 0,
   blueSeriesScore: 0,
   allianceBranding: false,
+  // Field 2 properties
+  field2Enabled: false,
+  field2MatchTime: '00:00',
+  field2GameFileLocation: '',
+  field2RedScore: 0,
+  field2BlueScore: 0,
+  field2RedOPR: [],
+  field2BlueOPR: [],
+  field2SeriesEnabled: false,
+  field2SeriesType: 'bo3',
+  field2RedAllianceName: 'Red Alliance',
+  field2BlueAllianceName: 'Blue Alliance',
+  field2RedSeriesScore: 0,
+  field2BlueSeriesScore: 0,
+  field2AllianceBranding: false,
 };
 
 const readScore = (filePath: string): number => {
   try {
     const content = readFileSync(filePath, 'utf-8');
     return parseInt(content.trim()) || 0;
-  } catch (error) {
+  } catch {
     return 0;
   }
 };
@@ -63,7 +51,7 @@ const readTimer = (filePath: string): string => {
   try {
     const content = readFileSync(filePath, 'utf-8');
     return content.trim() || '00:00';
-  } catch (error) {
+  } catch {
     return '00:00';
   }
 };
@@ -93,7 +81,7 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
       
       return { red, blue };
     }
-  } catch (error) {
+  } catch {
     // Return defaults on error
   }
   
@@ -104,7 +92,9 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
 };
 
 export async function GET() {
-  // Auto-update data from files if gameFileLocation is set
+  let hasChanges = false;
+  
+  // Auto-update data from files for Field 1
   if (overlayState.gameFileLocation) {
     try {
       const redScorePath = path.join(overlayState.gameFileLocation, 'Score_R.txt');
@@ -112,16 +102,78 @@ export async function GET() {
       const timerPath = path.join(overlayState.gameFileLocation, 'Timer.txt');
       const oprPath = path.join(overlayState.gameFileLocation, 'OPR.txt');
       
-      overlayState.redScore = readScore(redScorePath);
-      overlayState.blueScore = readScore(blueScorePath);
-      overlayState.matchTime = readTimer(timerPath);
+      // Read new values from files
+      const newRedScore = readScore(redScorePath);
+      const newBlueScore = readScore(blueScorePath);
+      const newMatchTime = readTimer(timerPath);
+      const newOPR = readOPR(oprPath);
       
-      const opr = readOPR(oprPath);
-      overlayState.redOPR = opr.red;
-      overlayState.blueOPR = opr.blue;
-    } catch (error) {
+      // Check if values actually changed
+      if (
+        overlayState.redScore !== newRedScore ||
+        overlayState.blueScore !== newBlueScore ||
+        overlayState.matchTime !== newMatchTime ||
+        JSON.stringify(overlayState.redOPR) !== JSON.stringify(newOPR.red) ||
+        JSON.stringify(overlayState.blueOPR) !== JSON.stringify(newOPR.blue)
+      ) {
+        hasChanges = true;
+        overlayState = {
+          ...overlayState,
+          redScore: newRedScore,
+          blueScore: newBlueScore,
+          matchTime: newMatchTime,
+          redOPR: newOPR.red,
+          blueOPR: newOPR.blue,
+        };
+      }
+    } catch {
       // Keep existing values if file reading fails
     }
+  }
+  
+  // Auto-update data from files for Field 2
+  if (overlayState.field2GameFileLocation) {
+    try {
+      const redScorePath = path.join(overlayState.field2GameFileLocation, 'Score_R.txt');
+      const blueScorePath = path.join(overlayState.field2GameFileLocation, 'Score_B.txt');
+      const timerPath = path.join(overlayState.field2GameFileLocation, 'Timer.txt');
+      const oprPath = path.join(overlayState.field2GameFileLocation, 'OPR.txt');
+      
+      // Read new values from files
+      const newRedScore = readScore(redScorePath);
+      const newBlueScore = readScore(blueScorePath);
+      const newMatchTime = readTimer(timerPath);
+      const newOPR = readOPR(oprPath);
+      
+      // Check if values actually changed
+      if (
+        overlayState.field2RedScore !== newRedScore ||
+        overlayState.field2BlueScore !== newBlueScore ||
+        overlayState.field2MatchTime !== newMatchTime ||
+        JSON.stringify(overlayState.field2RedOPR) !== JSON.stringify(newOPR.red) ||
+        JSON.stringify(overlayState.field2BlueOPR) !== JSON.stringify(newOPR.blue)
+      ) {
+        hasChanges = true;
+        overlayState = {
+          ...overlayState,
+          field2RedScore: newRedScore,
+          field2BlueScore: newBlueScore,
+          field2MatchTime: newMatchTime,
+          field2RedOPR: newOPR.red,
+          field2BlueOPR: newOPR.blue,
+        };
+      }
+    } catch {
+      // Keep existing values if file reading fails
+    }
+  }
+  
+  // Update lastUpdated only if there were changes
+  if (hasChanges) {
+    overlayState = {
+      ...overlayState,
+      lastUpdated: Date.now()
+    };
   }
   
   return NextResponse.json(overlayState);

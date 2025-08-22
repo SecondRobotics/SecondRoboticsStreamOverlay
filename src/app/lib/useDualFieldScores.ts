@@ -1,37 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
-import { setOverlayState } from './overlayState';
 
 interface ScoreData {
   redScore: number;
   blueScore: number;
-  error?: string;
 }
 
-interface FieldScores {
+interface DualFieldScores {
   field1: ScoreData;
   field2: ScoreData;
 }
 
-// Optimized hook that fetches scores for both fields in a single API call
-export const useOptimizedScores = (field1Location: string, field2Location: string, updateOverlayState = true, pollInterval = 100) => {
-  const [scores, setScores] = useState<FieldScores>({
+export const useDualFieldScores = (field1Location: string, field2Location: string, pollInterval: number = 100) => {
+  const [scores, setScores] = useState<DualFieldScores>({
     field1: { redScore: 0, blueScore: 0 },
     field2: { redScore: 0, blueScore: 0 }
   });
   
-  const prevScoresRef = useRef<FieldScores>(scores);
+  // Use refs to track previous values and avoid unnecessary state updates
+  const prevScoresRef = useRef<DualFieldScores>(scores);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     // Don't poll if neither field has a location
     if ((!field1Location || field1Location.trim() === '') && 
         (!field2Location || field2Location.trim() === '')) {
-      const emptyScores = {
+      setScores({
         field1: { redScore: 0, blueScore: 0 },
         field2: { redScore: 0, blueScore: 0 }
-      };
-      setScores(emptyScores);
-      prevScoresRef.current = emptyScores;
+      });
       return;
     }
 
@@ -65,13 +61,12 @@ export const useOptimizedScores = (field1Location: string, field2Location: strin
         
         const data = await response.json();
         
-        // Build new scores object
-        const newScores: FieldScores = {
+        // Only update state if values actually changed
+        const newScores: DualFieldScores = {
           field1: data.field1 || { redScore: 0, blueScore: 0 },
           field2: data.field2 || { redScore: 0, blueScore: 0 }
         };
         
-        // Only update state if values actually changed
         const prev = prevScoresRef.current;
         if (
           prev.field1.redScore !== newScores.field1.redScore ||
@@ -81,34 +76,6 @@ export const useOptimizedScores = (field1Location: string, field2Location: strin
         ) {
           prevScoresRef.current = newScores;
           setScores(newScores);
-          
-          // Optionally update the global overlay state
-          if (updateOverlayState) {
-            const updates: Partial<{
-              redScore: number;
-              blueScore: number;
-              field2RedScore: number;
-              field2BlueScore: number;
-            }> = {};
-            
-            // Update Field 1 scores if changed
-            if (prev.field1.redScore !== newScores.field1.redScore || 
-                prev.field1.blueScore !== newScores.field1.blueScore) {
-              updates.redScore = newScores.field1.redScore;
-              updates.blueScore = newScores.field1.blueScore;
-            }
-            
-            // Update Field 2 scores if changed  
-            if (prev.field2.redScore !== newScores.field2.redScore || 
-                prev.field2.blueScore !== newScores.field2.blueScore) {
-              updates.field2RedScore = newScores.field2.redScore;
-              updates.field2BlueScore = newScores.field2.blueScore;
-            }
-            
-            if (Object.keys(updates).length > 0) {
-              setOverlayState(updates);
-            }
-          }
         }
       } catch (error) {
         // Ignore abort errors
@@ -130,13 +97,7 @@ export const useOptimizedScores = (field1Location: string, field2Location: strin
         abortControllerRef.current.abort();
       }
     };
-  }, [field1Location, field2Location, updateOverlayState, pollInterval]);
+  }, [field1Location, field2Location, pollInterval]);
 
   return scores;
-};
-
-// Legacy single-field hook for backwards compatibility
-export const useScores = (gameFileLocation: string) => {
-  const dualScores = useOptimizedScores(gameFileLocation, '', false);
-  return { scores: dualScores.field1 };
 };

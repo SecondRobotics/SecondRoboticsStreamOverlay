@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getOverlayState, useOverlayState, OverlayState } from "../lib/overlayState";
+import { getOverlayState, subscribeToOverlayState, OverlayState } from "../lib/overlayState";
 import MatchView from "./components/MatchView";
 import StartingSoon from "./components/StartingSoon";
 import Results from "./components/Results";
@@ -43,13 +43,14 @@ export default function Overlay() {
     
     loadInitialState();
     
+    // Subscribe to state changes
+    const cleanup = subscribeToOverlayState((state) => {
+      setLocalOverlayState(state);
+    });
+    
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
     }, 1000);
-
-    const cleanup = useOverlayState((state) => {
-      setLocalOverlayState(state);
-    });
 
     return () => {
       clearInterval(timer);
