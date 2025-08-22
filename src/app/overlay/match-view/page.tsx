@@ -27,7 +27,7 @@ export default function MatchViewOverlay() {
     allianceBranding: false,
     // Tournament mode
     tournamentModeEnabled: false,
-    tournamentPlayersPath: '',
+    tournamentPath: '',
     matchNumber: '',
     redTeamId: undefined,
     blueTeamId: undefined,

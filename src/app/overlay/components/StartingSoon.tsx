@@ -2,6 +2,7 @@
 
 import { OverlayState } from "../../lib/overlayState";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface StartingSoonProps {
   state: OverlayState;
@@ -86,9 +87,11 @@ export default function StartingSoon({ state, currentTime }: StartingSoonProps) 
         
         {/* SRC Logo Background */}
         <div className="absolute inset-0 flex items-center justify-center opacity-15">
-          <img 
+          <Image 
             src="/assets/src-light-logo.png" 
             alt="SRC Logo Background" 
+            width={600}
+            height={600}
             className="h-[600px] w-auto"
           />
         </div>

@@ -27,7 +27,7 @@ export default function ResultsOverlay() {
     allianceBranding: false,
     // Tournament mode
     tournamentModeEnabled: false,
-    tournamentPlayersPath: '',
+    tournamentPath: '',
     matchNumber: '',
     redTeamId: undefined,
     blueTeamId: undefined,

@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Ensure directory exists
     try {
       mkdirSync(playersPath, { recursive: true });
-    } catch (error) {
+    } catch {
       // Directory might already exist, that's fine
     }
 
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         players,
         filePath 
       });
-    } catch (error) {
+    } catch {
       // File doesn't exist or can't be read
       return NextResponse.json({ 
         success: true,

@@ -104,7 +104,7 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
     const content = readFileSync(filePath, 'utf-8');
     const lines = content.split('\n').map(line => line.trim()).filter(line => line);
     
-    let result = { red: [] as { username: string; score: number }[], blue: [] as { username: string; score: number }[] };
+    const result = { red: [] as { username: string; score: number }[], blue: [] as { username: string; score: number }[] };
     
     if (lines.length > 0) {
       const parseOPRLine = (line: string): { username: string; score: number } => {
@@ -163,9 +163,10 @@ export async function GET() {
   // Read tournament files less frequently (every 5 seconds)
   const now = Date.now();
   if (overlayState.tournamentModeEnabled && overlayState.tournamentPath && (now - lastTournamentUpdate > 5000)) {
+    const tournamentPath = overlayState.tournamentPath;
     lastTournamentUpdate = now;
     
-    const newMatchNumber = readTimer(path.join(overlayState.tournamentPath, 'MatchNumber.txt'));
+    const newMatchNumber = readTimer(path.join(tournamentPath, 'MatchNumber.txt'));
     if (overlayState.matchNumber !== newMatchNumber) {
       hasChanges = true;
       overlayState = { ...overlayState, matchNumber: newMatchNumber };
@@ -173,13 +174,13 @@ export async function GET() {
     
     // Read player files
     try {
-      const redContent = readCachedFile(path.join(overlayState.tournamentPath, 'RedPlayers.txt'));
+      const redContent = readCachedFile(path.join(tournamentPath, 'RedPlayers.txt'));
       const newRedPlayers = redContent.split('\n').filter(line => line.trim());
       if (JSON.stringify(overlayState.tournamentRedPlayers) !== JSON.stringify(newRedPlayers)) {
         hasChanges = true;
         overlayState = { ...overlayState, tournamentRedPlayers: newRedPlayers };
       }
-    } catch (error) {
+    } catch {
       // Keep existing or set empty array
       if (overlayState.tournamentRedPlayers?.length) {
         hasChanges = true;
@@ -188,13 +189,13 @@ export async function GET() {
     }
     
     try {
-      const blueContent = readCachedFile(path.join(overlayState.tournamentPath, 'BluePlayers.txt'));
+      const blueContent = readCachedFile(path.join(tournamentPath, 'BluePlayers.txt'));
       const newBluePlayers = blueContent.split('\n').filter(line => line.trim());
       if (JSON.stringify(overlayState.tournamentBluePlayers) !== JSON.stringify(newBluePlayers)) {
         hasChanges = true;
         overlayState = { ...overlayState, tournamentBluePlayers: newBluePlayers };
       }
-    } catch (error) {
+    } catch {
       // Keep existing or set empty array
       if (overlayState.tournamentBluePlayers?.length) {
         hasChanges = true;

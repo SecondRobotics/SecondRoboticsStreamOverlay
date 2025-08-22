@@ -337,12 +337,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                 {/* Left Side Logo */}
                 {leftTeam?.logo && (
                   <div className="absolute left-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={`/Team_Logos/${leftTeam.logo}`}
                       alt={`${leftAllianceName} Logo`}
+                      fill
                       style={{ 
-                        width: '100%', 
-                        height: '100%', 
                         objectFit: 'contain' 
                       }}
                       className="drop-shadow-lg"
@@ -353,12 +352,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
                 {/* Right Side Logo */}
                 {rightTeam?.logo && (
                   <div className="absolute right-0 top-0 bottom-0 w-80 z-15 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={`/Team_Logos/${rightTeam.logo}`}
                       alt={`${rightAllianceName} Logo`}
+                      fill
                       style={{ 
-                        width: '100%', 
-                        height: '100%', 
                         objectFit: 'contain' 
                       }}
                       className="drop-shadow-lg"

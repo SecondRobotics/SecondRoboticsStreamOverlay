@@ -59,46 +59,6 @@ export default function Dashboard() {
     isEditingRef.current = isEditing;
   }, [isEditing]);
 
-  // Tournament mode functions
-  const savePlayers = async (team: 'red' | 'blue', playersText: string) => {
-    if (!overlayState.tournamentPath) return;
-    
-    const players = playersText.split('\n').filter(line => line.trim());
-    
-    try {
-      const response = await fetch('/api/tournament-players', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          playersPath: overlayState.tournamentPath,
-          team,
-          players
-        })
-      });
-      
-      if (!response.ok) {
-        console.error('Failed to save players');
-      }
-    } catch (error) {
-      console.error('Error saving players:', error);
-    }
-  };
-
-  const loadPlayers = async (team: 'red' | 'blue') => {
-    if (!overlayState.tournamentPath) return [];
-    
-    try {
-      const response = await fetch(`/api/tournament-players?path=${encodeURIComponent(overlayState.tournamentPath)}&team=${team}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.players.join('\n');
-      }
-    } catch (error) {
-      console.error('Error loading players:', error);
-    }
-    return '';
-  };
 
   // Use players from overlay state instead of loading separately
   useEffect(() => {

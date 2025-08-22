@@ -6,7 +6,6 @@ import path from 'path';
 const watchers = new Map<string, FSWatcher>();
 const clients = new Set<ReadableStreamDefaultController>();
 
-let isWatchingEnabled = false;
 
 export async function GET(request: NextRequest) {
   // Create Server-Sent Events stream
@@ -50,14 +49,13 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
 
 function startWatching(paths: { field1?: string, field2?: string }) {
   stopAllWatchers();
-  isWatchingEnabled = true;
   
   const filesToWatch = [
     'Score_R.txt',
@@ -79,8 +77,8 @@ function startWatching(paths: { field1?: string, field2?: string }) {
         });
         
         watchers.set(`field1_${fileName}`, watcher);
-      } catch (error) {
-        console.error(`Failed to watch ${filePath}:`, error);
+      } catch {
+        console.error(`Failed to watch ${filePath}`);
       }
     });
   }
@@ -97,8 +95,8 @@ function startWatching(paths: { field1?: string, field2?: string }) {
         });
         
         watchers.set(`field2_${fileName}`, watcher);
-      } catch (error) {
-        console.error(`Failed to watch ${filePath}:`, error);
+      } catch {
+        console.error(`Failed to watch ${filePath}`);
       }
     });
   }
@@ -108,12 +106,11 @@ function stopAllWatchers() {
   watchers.forEach((watcher) => {
     try {
       watcher.close();
-    } catch (error) {
-      console.error('Error closing watcher:', error);
+    } catch {
+      console.error('Error closing watcher');
     }
   });
   watchers.clear();
-  isWatchingEnabled = false;
 }
 
 function broadcastChange(field: string, fileName: string, filePath: string) {
@@ -131,7 +128,7 @@ function broadcastChange(field: string, fileName: string, filePath: string) {
   clients.forEach(controller => {
     try {
       controller.enqueue(data);
-    } catch (error) {
+    } catch {
       // Client disconnected, remove from set
       clients.delete(controller);
     }
