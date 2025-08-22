@@ -25,6 +25,10 @@ export default function ResultsOverlay() {
     redSeriesScore: 0,
     blueSeriesScore: 0,
     allianceBranding: false,
+    // Tournament mode
+    tournamentModeEnabled: false,
+    tournamentPlayersPath: '',
+    matchNumber: '',
     redTeamId: undefined,
     blueTeamId: undefined,
     redPrimaryColor: undefined,

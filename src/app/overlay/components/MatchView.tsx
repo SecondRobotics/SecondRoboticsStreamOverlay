@@ -282,6 +282,11 @@ export default function MatchView({ state, currentTime }: MatchViewProps) {
         <div className="text-lg font-bold">
           {state.matchTitle}
         </div>
+        {state.matchNumber && state.matchNumber.trim() && (
+          <div className="text-sm text-white/80 mt-1">
+            {state.matchNumber}
+          </div>
+        )}
       </div>
 
       <div className="absolute top-4 right-4 flex flex-col gap-2">

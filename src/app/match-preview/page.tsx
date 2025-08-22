@@ -8,6 +8,7 @@ import Image from 'next/image';
 export default function MatchPreview() {
   const [state, setState] = useState<OverlayState | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [tournamentPlayers, setTournamentPlayers] = useState<{red: string[], blue: string[]}>({red: [], blue: []});
 
   useEffect(() => {
     const fetchState = async () => {
@@ -28,6 +29,18 @@ export default function MatchPreview() {
   useEffect(() => {
     loadTeams().then(setTeams);
   }, []);
+
+  // Use tournament players from overlay state
+  useEffect(() => {
+    if (state?.tournamentModeEnabled && (state?.tournamentRedPlayers || state?.tournamentBluePlayers)) {
+      setTournamentPlayers({
+        red: state.tournamentRedPlayers || [],
+        blue: state.tournamentBluePlayers || []
+      });
+    } else {
+      setTournamentPlayers({red: [], blue: []});
+    }
+  }, [state?.tournamentModeEnabled, state?.tournamentRedPlayers, state?.tournamentBluePlayers]);
 
 
   // Find teams based on IDs
@@ -54,6 +67,10 @@ export default function MatchPreview() {
   const rightSecondaryColor = state?.flippedTeams ? state?.redSecondaryColor : state?.blueSecondaryColor;
   const leftIsRed = !state?.flippedTeams;
   const rightIsRed = !!state?.flippedTeams;
+
+  // Tournament players (considering flipped teams)
+  const leftTournamentPlayers = state?.flippedTeams ? tournamentPlayers.blue : tournamentPlayers.red;
+  const rightTournamentPlayers = state?.flippedTeams ? tournamentPlayers.red : tournamentPlayers.blue;
 
 
   const renderSeriesBoxes = (score: number, color: 'red' | 'blue') => {
@@ -157,6 +174,13 @@ export default function MatchPreview() {
             <h1 className="text-3xl font-bold text-white tracking-wide">
               {state.matchTitle}
             </h1>
+            {state.matchNumber && state.matchNumber.trim() && (
+              <div className="mt-2">
+                <span className="text-lg text-white/80 font-medium">
+                  {state.matchNumber}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -234,7 +258,7 @@ export default function MatchPreview() {
               </h2>
               
               {/* Team Players */}
-              {state.allianceBranding && leftTeam?.players && (
+              {((state.allianceBranding && leftTeam?.players) || (state.tournamentModeEnabled && leftTournamentPlayers.length > 0)) && (
                 <div className="mt-6">
                   <div 
                     className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
@@ -243,11 +267,18 @@ export default function MatchPreview() {
                       borderColor: leftPrimaryColor ? `${leftPrimaryColor}40` : (leftIsRed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)')
                     }}
                   >
-                    {leftTeam.players.map((player, index) => (
-                      <div key={index} className="text-lg text-white font-medium">
-                        {player}
-                      </div>
-                    ))}
+                    {state.tournamentModeEnabled && leftTournamentPlayers.length > 0 
+                      ? leftTournamentPlayers.map((player, index) => (
+                          <div key={index} className="text-lg text-white font-medium">
+                            {player}
+                          </div>
+                        ))
+                      : leftTeam?.players?.map((player, index) => (
+                          <div key={index} className="text-lg text-white font-medium">
+                            {player}
+                          </div>
+                        ))
+                    }
                   </div>
                 </div>
               )}
@@ -346,7 +377,7 @@ export default function MatchPreview() {
               </h2>
               
               {/* Team Players */}
-              {state.allianceBranding && rightTeam?.players && (
+              {((state.allianceBranding && rightTeam?.players) || (state.tournamentModeEnabled && rightTournamentPlayers.length > 0)) && (
                 <div className="mt-6">
                   <div 
                     className="backdrop-blur-sm rounded-lg px-4 py-2 border w-64 mx-auto"
@@ -355,11 +386,18 @@ export default function MatchPreview() {
                       borderColor: rightPrimaryColor ? `${rightPrimaryColor}40` : (rightIsRed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)')
                     }}
                   >
-                    {rightTeam.players.map((player, index) => (
-                      <div key={index} className="text-lg text-white font-medium">
-                        {player}
-                      </div>
-                    ))}
+                    {state.tournamentModeEnabled && rightTournamentPlayers.length > 0 
+                      ? rightTournamentPlayers.map((player, index) => (
+                          <div key={index} className="text-lg text-white font-medium">
+                            {player}
+                          </div>
+                        ))
+                      : rightTeam?.players?.map((player, index) => (
+                          <div key={index} className="text-lg text-white font-medium">
+                            {player}
+                          </div>
+                        ))
+                    }
                   </div>
                 </div>
               )}

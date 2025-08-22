@@ -11,6 +11,8 @@ interface FileCacheEntry {
 
 const fileCache = new Map<string, FileCacheEntry>();
 
+let lastTournamentUpdate = 0;
+
 let overlayState: OverlayState = {
   mode: 'starting-soon',
   matchTitle: 'FRC Stream Overlay',
@@ -30,6 +32,12 @@ let overlayState: OverlayState = {
   redSeriesScore: 0,
   blueSeriesScore: 0,
   allianceBranding: false,
+  // Tournament mode
+  tournamentModeEnabled: false,
+  tournamentPath: '',
+  matchNumber: '',
+  tournamentRedPlayers: [],
+  tournamentBluePlayers: [],
   // Field 2 properties
   field2Enabled: false,
   field2MatchTime: '00:00',
@@ -151,6 +159,49 @@ const oprArraysEqual = (
 
 export async function GET() {
   let hasChanges = false;
+
+  // Read tournament files less frequently (every 5 seconds)
+  const now = Date.now();
+  if (overlayState.tournamentModeEnabled && overlayState.tournamentPath && (now - lastTournamentUpdate > 5000)) {
+    lastTournamentUpdate = now;
+    
+    const newMatchNumber = readTimer(path.join(overlayState.tournamentPath, 'MatchNumber.txt'));
+    if (overlayState.matchNumber !== newMatchNumber) {
+      hasChanges = true;
+      overlayState = { ...overlayState, matchNumber: newMatchNumber };
+    }
+    
+    // Read player files
+    try {
+      const redContent = readCachedFile(path.join(overlayState.tournamentPath, 'RedPlayers.txt'));
+      const newRedPlayers = redContent.split('\n').filter(line => line.trim());
+      if (JSON.stringify(overlayState.tournamentRedPlayers) !== JSON.stringify(newRedPlayers)) {
+        hasChanges = true;
+        overlayState = { ...overlayState, tournamentRedPlayers: newRedPlayers };
+      }
+    } catch (error) {
+      // Keep existing or set empty array
+      if (overlayState.tournamentRedPlayers?.length) {
+        hasChanges = true;
+        overlayState = { ...overlayState, tournamentRedPlayers: [] };
+      }
+    }
+    
+    try {
+      const blueContent = readCachedFile(path.join(overlayState.tournamentPath, 'BluePlayers.txt'));
+      const newBluePlayers = blueContent.split('\n').filter(line => line.trim());
+      if (JSON.stringify(overlayState.tournamentBluePlayers) !== JSON.stringify(newBluePlayers)) {
+        hasChanges = true;
+        overlayState = { ...overlayState, tournamentBluePlayers: newBluePlayers };
+      }
+    } catch (error) {
+      // Keep existing or set empty array
+      if (overlayState.tournamentBluePlayers?.length) {
+        hasChanges = true;
+        overlayState = { ...overlayState, tournamentBluePlayers: [] };
+      }
+    }
+  }
   
   // Early exit if no files configured
   if (!overlayState.gameFileLocation && !overlayState.field2GameFileLocation) {
@@ -234,6 +285,7 @@ export async function GET() {
       // Keep existing values if file reading fails
     }
   }
+
   
   // Update lastUpdated only if there were changes
   if (hasChanges) {

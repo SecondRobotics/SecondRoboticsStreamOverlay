@@ -26,6 +26,12 @@ export interface OverlayState {
   blueSecondaryColor?: string;
   allianceBranding: boolean;
   flippedTeams?: boolean;
+  // Tournament mode
+  tournamentModeEnabled?: boolean;
+  tournamentPath?: string;
+  matchNumber?: string;
+  tournamentRedPlayers?: string[];
+  tournamentBluePlayers?: string[];
   // Field 2 properties
   field2Enabled?: boolean;
   field2MatchTime?: string;
@@ -70,6 +76,12 @@ const defaultState: OverlayState = {
   blueSeriesScore: 0,
   allianceBranding: false,
   flippedTeams: false,
+  // Tournament mode defaults
+  tournamentModeEnabled: false,
+  tournamentPath: '',
+  matchNumber: '',
+  tournamentRedPlayers: [],
+  tournamentBluePlayers: [],
   // Field 2 defaults
   field2Enabled: false,
   field2MatchTime: '00:00',
