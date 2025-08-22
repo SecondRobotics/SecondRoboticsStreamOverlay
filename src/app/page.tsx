@@ -32,6 +32,7 @@ export default function Dashboard() {
     field2Enabled: false,
     field2MatchTime: '00:00',
     field2GameFileLocation: '',
+    field2GameState: '',
     field2RedScore: 0,
     field2BlueScore: 0,
     field2RedOPR: [{ username: '', score: 0 }, { username: '', score: 0 }, { username: '', score: 0 }],

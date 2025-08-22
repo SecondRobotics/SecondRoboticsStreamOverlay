@@ -31,6 +31,22 @@ export default function ResultsOverlay() {
     redSecondaryColor: undefined,
     bluePrimaryColor: undefined,
     blueSecondaryColor: undefined,
+    // Field 2 properties
+    field2Enabled: false,
+    field2MatchTime: '00:00',
+    field2GameFileLocation: '',
+    field2GameState: '',
+    field2RedScore: 0,
+    field2BlueScore: 0,
+    field2RedOPR: [],
+    field2BlueOPR: [],
+    field2SeriesEnabled: false,
+    field2SeriesType: 'bo3',
+    field2RedAllianceName: 'Red Alliance',
+    field2BlueAllianceName: 'Blue Alliance',
+    field2RedSeriesScore: 0,
+    field2BlueSeriesScore: 0,
+    field2AllianceBranding: false,
   });
 
   useEffect(() => {

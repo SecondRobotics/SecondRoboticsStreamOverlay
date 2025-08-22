@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync } from 'fs';
+import { readFileSync, statSync } from 'fs';
 import path from 'path';
 import { OverlayState } from '../../lib/overlayState';
+
+// File cache to avoid unnecessary reads
+interface FileCacheEntry {
+  content: string | { red: { username: string; score: number }[], blue: { username: string; score: number }[] };
+  mtime: number;
+}
+
+const fileCache = new Map<string, FileCacheEntry>();
 
 let overlayState: OverlayState = {
   mode: 'starting-soon',
@@ -26,6 +34,7 @@ let overlayState: OverlayState = {
   field2Enabled: false,
   field2MatchTime: '00:00',
   field2GameFileLocation: '',
+  field2GameState: '',
   field2RedScore: 0,
   field2BlueScore: 0,
   field2RedOPR: [],
@@ -39,28 +48,55 @@ let overlayState: OverlayState = {
   field2AllianceBranding: false,
 };
 
-const readScore = (filePath: string): number => {
+const readCachedFile = (filePath: string): string => {
   try {
+    const stat = statSync(filePath);
+    const mtime = stat.mtimeMs;
+    const cached = fileCache.get(filePath);
+    
+    if (cached && cached.mtime === mtime && typeof cached.content === 'string') {
+      return cached.content;
+    }
+    
     const content = readFileSync(filePath, 'utf-8');
-    return parseInt(content.trim()) || 0;
+    fileCache.set(filePath, { content, mtime });
+    
+    // Clean cache if too large
+    if (fileCache.size > 100) {
+      const firstKey = fileCache.keys().next().value;
+      if (firstKey) fileCache.delete(firstKey);
+    }
+    
+    return content;
   } catch {
-    return 0;
+    return '';
   }
 };
 
+const readScore = (filePath: string): number => {
+  const content = readCachedFile(filePath);
+  return parseInt(content.trim()) || 0;
+};
+
 const readTimer = (filePath: string): string => {
-  try {
-    const content = readFileSync(filePath, 'utf-8');
-    return content.trim() || '00:00';
-  } catch {
-    return '00:00';
-  }
+  const content = readCachedFile(filePath);
+  return content.trim() || '00:00';
 };
 
 const readOPR = (filePath: string): { red: { username: string; score: number }[], blue: { username: string; score: number }[] } => {
   try {
+    const stat = statSync(filePath);
+    const mtime = stat.mtimeMs;
+    const cached = fileCache.get(filePath);
+    
+    if (cached && cached.mtime === mtime && typeof cached.content === 'object') {
+      return cached.content as { red: { username: string; score: number }[], blue: { username: string; score: number }[] };
+    }
+    
     const content = readFileSync(filePath, 'utf-8');
     const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+    
+    let result = { red: [] as { username: string; score: number }[], blue: [] as { username: string; score: number }[] };
     
     if (lines.length > 0) {
       const parseOPRLine = (line: string): { username: string; score: number } => {
@@ -77,48 +113,72 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
 
       // Split lines between red and blue teams dynamically
       const midpoint = Math.ceil(lines.length / 2);
-      const red = lines.slice(0, midpoint).map(line => parseOPRLine(line));
-      const blue = lines.slice(midpoint).map(line => parseOPRLine(line));
-      
-      return { red, blue };
+      result.red = lines.slice(0, midpoint).map(line => parseOPRLine(line));
+      result.blue = lines.slice(midpoint).map(line => parseOPRLine(line));
     }
+    
+    fileCache.set(filePath, { content: result, mtime });
+    
+    // Clean cache if too large
+    if (fileCache.size > 100) {
+      const firstKey = fileCache.keys().next().value;
+      if (firstKey) fileCache.delete(firstKey);
+    }
+    
+    return result;
   } catch {
     // Return defaults on error
+    return { 
+      red: [], 
+      blue: [] 
+    };
   }
-  
-  return { 
-    red: [], 
-    blue: [] 
-  };
+};
+
+// Efficient OPR comparison without JSON.stringify
+const oprArraysEqual = (
+  a: { username: string; score: number }[], 
+  b: { username: string; score: number }[]
+): boolean => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].username !== b[i].username || a[i].score !== b[i].score) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export async function GET() {
   let hasChanges = false;
   
+  // Early exit if no files configured
+  if (!overlayState.gameFileLocation && !overlayState.field2GameFileLocation) {
+    return NextResponse.json(overlayState);
+  }
+  
   // Auto-update data from files for Field 1
   if (overlayState.gameFileLocation) {
     try {
-      const redScorePath = path.join(overlayState.gameFileLocation, 'Score_R.txt');
-      const blueScorePath = path.join(overlayState.gameFileLocation, 'Score_B.txt');
-      const timerPath = path.join(overlayState.gameFileLocation, 'Timer.txt');
-      const oprPath = path.join(overlayState.gameFileLocation, 'OPR.txt');
-      const gameStatePath = path.join(overlayState.gameFileLocation, 'GameState.txt');
+      const basePath = overlayState.gameFileLocation;
       
-      // Read new values from files
-      const newRedScore = readScore(redScorePath);
-      const newBlueScore = readScore(blueScorePath);
-      const newMatchTime = readTimer(timerPath);
-      const newOPR = readOPR(oprPath);
-      const newGameState = readTimer(gameStatePath); // Use readTimer since it reads text
+      // Read all files in parallel for maximum speed
+      const [newRedScore, newBlueScore, newMatchTime, newOPR, newGameState] = await Promise.all([
+        Promise.resolve(readScore(path.join(basePath, 'Score_R.txt'))),
+        Promise.resolve(readScore(path.join(basePath, 'Score_B.txt'))),
+        Promise.resolve(readTimer(path.join(basePath, 'Timer.txt'))),
+        Promise.resolve(readOPR(path.join(basePath, 'OPR.txt'))),
+        Promise.resolve(readTimer(path.join(basePath, 'GameState.txt')))
+      ]);
       
-      // Check if values actually changed
+      // Check if values actually changed using efficient comparison
       if (
         overlayState.redScore !== newRedScore ||
         overlayState.blueScore !== newBlueScore ||
         overlayState.matchTime !== newMatchTime ||
         overlayState.gameState !== newGameState ||
-        JSON.stringify(overlayState.redOPR) !== JSON.stringify(newOPR.red) ||
-        JSON.stringify(overlayState.blueOPR) !== JSON.stringify(newOPR.blue)
+        !oprArraysEqual(overlayState.redOPR, newOPR.red) ||
+        !oprArraysEqual(overlayState.blueOPR, newOPR.blue)
       ) {
         hasChanges = true;
         overlayState = {
@@ -139,26 +199,25 @@ export async function GET() {
   // Auto-update data from files for Field 2
   if (overlayState.field2GameFileLocation) {
     try {
-      const redScorePath = path.join(overlayState.field2GameFileLocation, 'Score_R.txt');
-      const blueScorePath = path.join(overlayState.field2GameFileLocation, 'Score_B.txt');
-      const timerPath = path.join(overlayState.field2GameFileLocation, 'Timer.txt');
-      const oprPath = path.join(overlayState.field2GameFileLocation, 'OPR.txt');
+      const basePath = overlayState.field2GameFileLocation;
       
-      // Read new values from files
-      const newRedScore = readScore(redScorePath);
-      const newBlueScore = readScore(blueScorePath);
-      const newMatchTime = readTimer(timerPath);
-      const newOPR = readOPR(oprPath);
-      const newGameState = readTimer(gameStatePath); // Use readTimer since it reads text
+      // Read all files in parallel for maximum speed
+      const [newRedScore, newBlueScore, newMatchTime, newOPR, newGameState] = await Promise.all([
+        Promise.resolve(readScore(path.join(basePath, 'Score_R.txt'))),
+        Promise.resolve(readScore(path.join(basePath, 'Score_B.txt'))),
+        Promise.resolve(readTimer(path.join(basePath, 'Timer.txt'))),
+        Promise.resolve(readOPR(path.join(basePath, 'OPR.txt'))),
+        Promise.resolve(readTimer(path.join(basePath, 'GameState.txt')))
+      ]);
       
-      // Check if values actually changed
+      // Check if values actually changed using efficient comparison
       if (
         overlayState.field2RedScore !== newRedScore ||
         overlayState.field2BlueScore !== newBlueScore ||
         overlayState.field2MatchTime !== newMatchTime ||
         overlayState.field2GameState !== newGameState ||
-        JSON.stringify(overlayState.field2RedOPR) !== JSON.stringify(newOPR.red) ||
-        JSON.stringify(overlayState.field2BlueOPR) !== JSON.stringify(newOPR.blue)
+        !oprArraysEqual(overlayState.field2RedOPR || [], newOPR.red) ||
+        !oprArraysEqual(overlayState.field2BlueOPR || [], newOPR.blue)
       ) {
         hasChanges = true;
         overlayState = {

@@ -123,7 +123,7 @@ export const setOverlayState = async (state: Partial<OverlayState>): Promise<voi
   }
 };
 
-export const subscribeToOverlayState = (callback: (state: OverlayState) => void, options?: { forceHighSpeed?: boolean }) => {
+export const subscribeToOverlayState = (callback: (state: OverlayState) => void, options?: { forceHighSpeed?: boolean; useFileWatcher?: boolean }) => {
   if (typeof window === 'undefined') return;
   
   let lastUpdated = 0;
