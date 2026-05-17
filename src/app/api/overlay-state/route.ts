@@ -63,9 +63,12 @@ const readCachedFile = (filePath: string): string => {
     const cached = fileCache.get(filePath);
     
     if (cached && cached.mtime === mtime && typeof cached.content === 'string') {
+      // Promote to most-recently-used
+      fileCache.delete(filePath);
+      fileCache.set(filePath, cached);
       return cached.content;
     }
-    
+
     const content = readFileSync(filePath, 'utf-8');
     fileCache.set(filePath, { content, mtime });
     
@@ -98,7 +101,11 @@ const readOPR = (filePath: string): { red: { username: string; score: number }[]
     const cached = fileCache.get(filePath);
     
     if (cached && cached.mtime === mtime && typeof cached.content === 'object') {
-      return cached.content as { red: { username: string; score: number }[], blue: { username: string; score: number }[] };
+      // Promote to most-recently-used
+      fileCache.delete(filePath);
+      fileCache.set(filePath, cached);
+      const c = cached.content as { red: { username: string; score: number }[], blue: { username: string; score: number }[] };
+      return { red: c.red.slice(), blue: c.blue.slice() };
     }
     
     const content = readFileSync(filePath, 'utf-8');
@@ -229,8 +236,8 @@ export async function GET() {
         overlayState.blueScore !== newBlueScore ||
         overlayState.matchTime !== newMatchTime ||
         overlayState.gameState !== newGameState ||
-        !oprArraysEqual(overlayState.redOPR, newOPR.red) ||
-        !oprArraysEqual(overlayState.blueOPR, newOPR.blue)
+        !oprArraysEqual(overlayState.redOPR || [], newOPR.red) ||
+        !oprArraysEqual(overlayState.blueOPR || [], newOPR.blue)
       ) {
         hasChanges = true;
         overlayState = {
@@ -302,6 +309,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const updates = await request.json();
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+      return NextResponse.json({ error: 'Invalid update payload' }, { status: 400 });
+    }
     overlayState = {
       ...overlayState,
       ...updates,

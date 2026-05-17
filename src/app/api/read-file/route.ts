@@ -25,6 +25,9 @@ export async function GET(request: NextRequest) {
       const cached = fileCache.get(filePath);
       
       if (cached && cached.mtime === mtime) {
+        // Promote to most-recently-used
+        fileCache.delete(filePath);
+        fileCache.set(filePath, cached);
         return new NextResponse(cached.content, {
           status: 200,
           headers: {

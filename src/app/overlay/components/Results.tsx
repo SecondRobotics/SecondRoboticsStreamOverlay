@@ -11,7 +11,7 @@ interface ResultsProps {
 
 export default function Results({ state }: ResultsProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
+  const [isExiting] = useState(false);
   const [differentialData, setDifferentialData] = useState<PointsDifferentialData[]>([]);
   const [gameData, setGameData] = useState({ // eslint-disable-line @typescript-eslint/no-unused-vars
     autoLeaveR: '0',
@@ -65,14 +65,9 @@ export default function Results({ state }: ResultsProps) {
   useEffect(() => {
     // Show immediately, no delay
     setIsVisible(true);
-    
+
     // Get differential data from tracker
     setDifferentialData(pointsDifferentialTracker.getData());
-
-    return () => {
-      // Exit animation when component unmounts
-      setIsExiting(true);
-    };
   }, []);
 
   useEffect(() => {
