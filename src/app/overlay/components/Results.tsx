@@ -63,12 +63,14 @@ export default function Results({ state }: ResultsProps) {
 
 
   useEffect(() => {
-    // Show immediately, no delay
     setIsVisible(true);
-
-    // Get differential data from tracker
-    setDifferentialData(pointsDifferentialTracker.getData());
   }, []);
+
+  useEffect(() => {
+    if (state.differentialData && state.differentialData.length > 0) {
+      setDifferentialData(state.differentialData);
+    }
+  }, [state.differentialData]);
 
   useEffect(() => {
     // Read files in background after render
