@@ -55,6 +55,7 @@ export interface OverlayState {
   field2BlueSecondaryColor?: string;
   field2AllianceBranding?: boolean;
   field2FlippedTeams?: boolean;
+  differentialData?: { redScore: number; blueScore: number; differential: number; gameTime: string; timestamp: number }[];
 }
 
 const defaultState: OverlayState = {
@@ -98,6 +99,7 @@ const defaultState: OverlayState = {
   field2BlueSeriesScore: 0,
   field2AllianceBranding: false,
   field2FlippedTeams: false,
+  differentialData: [],
 };
 
 export const getOverlayState = async (): Promise<OverlayState> => {
